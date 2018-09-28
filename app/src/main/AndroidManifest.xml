@@ -15,13 +15,14 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter>
-                <data android:scheme="br.com.rafaelverginelli.photogenius" />
-
+            <intent-filter android:autoVerify="true">
+                <data android:scheme="http"
+                    android:host="@string/app_package_name"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"></activity>
     </application>
 
 </manifest>

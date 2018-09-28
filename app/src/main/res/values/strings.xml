@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">PhotoGenius</string>
+    <string name="app_package_name">br.com.rafaelverginelli.photogenius</string>
 </resources>
