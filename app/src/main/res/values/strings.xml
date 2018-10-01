@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">PhotoGenius</string>
-    <string name="app_package_name">br.com.rafaelverginelli.photogenius</string>
+    <string name="photo">Photo</string>
+    <string name="genius">Genius</string>
+    <string name="transition_logo">transition_logo</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_in_info">Hey! Welcome to PhotoGenius.\nPlease, Sign In!</string>
 </resources>

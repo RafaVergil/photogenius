@@ -1,0 +1,10 @@
+<resources>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Add this line -->
+        <item name="android:windowContentTransitions">true</item>
+    </style>
+    <style name="FullScreenAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Add this line -->
+        <item name="android:windowContentTransitions">true</item>
+    </style>
+</resources>

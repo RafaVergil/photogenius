@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="BackgroundImageView">
+        <attr name="rivColorStart" format="color"/>
+        <attr name="rivColorEnd" format="color"/>
+        <attr name="rivRadius" format="integer"/>
+        <attr name="rivGradientOrientation" format="integer"/>
+        <attr name="rivTopLeft" format="boolean"/>
+        <attr name="rivTopRight" format="boolean"/>
+        <attr name="rivBottomRight" format="boolean"/>
+        <attr name="rivBottomLeft" format="boolean"/>
+    </declare-styleable>
+</resources>

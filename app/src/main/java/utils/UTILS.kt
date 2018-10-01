@@ -1,0 +1,26 @@
+package utils
+
+/*
+    I have a set of common classes that I use in all my projects.
+    UTILS is one of those classes. UTILS is where I keep methods that will come in handy for all
+    the project.
+*/
+
+object UTILS {
+
+    /*
+        It is not recommend to leave console logs printing stuff around.
+        All my prints are made using the DebugLog method, and the bool 'isDebugEnabled' is
+        responsible for allowing those prints or not. 'isDebugEnabled' is always TRUE during
+        debugging, and it's necessarily FALSE when building a release apk.
+     */
+    const val isDebugEnabled: Boolean = true
+
+    fun DebugLog(tag: String, obj: Object) {
+        if(isDebugEnabled) {
+            System.out.println(tag)
+            System.out.println(obj.toString())
+        }
+    }
+
+}

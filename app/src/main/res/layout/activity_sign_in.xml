@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SignInActivity">
+
+    <views.DynamicImageView
+        android:scaleType="centerCrop"
+        android:src="@drawable/bg_pic_01"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <views.BackgroundImageView
+        android:alpha="0.9"
+        app:rivGradientOrientation="7"
+        app:rivColorStart="@color/accent"
+        app:rivColorEnd="@color/primary"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:id="@+id/llLogo"
+        android:orientation="vertical"
+        android:layout_marginTop="150dp"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/imgLogo"
+            android:transitionName="@string/transition_logo"
+            android:layout_gravity="center"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:src="@drawable/logo_white"
+            android:layout_width="wrap_content"
+            android:layout_height="100dp" />
+
+        <LinearLayout
+            android:id="@+id/llLogoText"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:textSize="32sp"
+                android:text="@string/photo"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:text="@string/genius"
+                android:textColor="@android:color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txtSignInInfo"
+        android:layout_below="@+id/llLogo"
+        android:layout_marginTop="50dp"
+        android:text="@string/sign_in_info"
+        android:textColor="@android:color/white"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <RelativeLayout
+        android:id="@+id/btnSignIn"
+        android:layout_below="@+id/txtSignInInfo"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="60dp"
+        android:layout_marginRight="60dp"
+        android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <views.BackgroundImageView
+            android:layout_alignTop="@+id/txtSignIn"
+            android:layout_alignBottom="@+id/txtSignIn"
+            android:layout_alignLeft="@+id/txtSignIn"
+            android:layout_alignRight="@+id/txtSignIn"
+            android:layout_alignStart="@+id/txtSignIn"
+            android:layout_alignEnd="@+id/txtSignIn"
+            app:rivRadius="50"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/txtSignIn"
+            android:gravity="center"
+            android:textColor="@color/primary_text"
+            android:textStyle="bold"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:textSize="16sp"
+            android:text="@string/sign_in"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </RelativeLayout>
+
+    <WebView
+        android:id="@+id/webView"
+        android:visibility="invisible"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</RelativeLayout>

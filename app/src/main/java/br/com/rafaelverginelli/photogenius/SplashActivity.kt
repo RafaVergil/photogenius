@@ -1,56 +1,66 @@
 package br.com.rafaelverginelli.photogenius
 
+import abstractions.CustomAppCompatActivity
+import android.animation.ObjectAnimator
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import android.os.Handler
+import android.support.v4.app.ActivityCompat
+import android.support.v4.app.ActivityOptionsCompat
 import kotlinx.android.synthetic.main.activity_splash.*
-import utils.CONSTANTS
 
 
-class SplashActivity : AppCompatActivity() {
+class SplashActivity : CustomAppCompatActivity() {
 
-    val KEY_ACCESS_TOKEN = "access_token="
+    val animDuration: Long = 1000
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        btnTest.setOnClickListener{
-            val uri = Uri.parse(String.format(
-                    CONSTANTS.INSTAGRAM_API_GET_ACCESS_TOKEN_URL,
-                    CONSTANTS.INSTAGRAM_API_CLIENT_ID,
-                    String.format(CONSTANTS.INSTAGRAM_API_REDIRECT_URL,
-                            getString(R.string.app_package_name))))
-
-            val intent = Intent(Intent.ACTION_VIEW, uri)
-            val b = Bundle()
-            intent.putExtras(b)
-            startActivity(intent)
-        }
+        StartAnimation()
     }
 
-    override fun onResume() {
-        super.onResume()
+    fun StartAnimation() {
+        imgLogo.scaleX = 10f
+        imgLogo.scaleY = 10f
+        imgLogo.alpha = 0f
 
-        val intent = intent
-        if (Intent.ACTION_VIEW == intent.action) {
-            val uri = intent.data?.toString()
-            /*
-            Getting the Fragment Identifier from url
-            I couldn't find a nicer way of extracing the access_token
-            Another solution would be replacing '#' for '?' and extracting
-            via getQueryParameterNames(), but it wouldn't be safe and it would be
-            string manipulation, anyway.
-             */
-            val accessToken = uri!!.substring(uri.indexOf('#') + KEY_ACCESS_TOKEN.length + 1)
+        val animScaleX: ObjectAnimator = ObjectAnimator.
+                ofFloat(imgLogo, "scaleX", imgLogo.scaleX, 1f)
+        animScaleX.duration = animDuration
+        animScaleX.start()
 
-            if(!accessToken.isEmpty()) {
-                txtTest.text = accessToken
-                return
+        val animScaleY: ObjectAnimator = ObjectAnimator.
+                ofFloat(imgLogo, "scaleY", imgLogo.scaleX, 1f)
+        animScaleY.duration = animDuration
+        animScaleY.start()
+
+        val animAlpha: ObjectAnimator = ObjectAnimator.
+                ofFloat(imgLogo, "alpha", imgLogo.alpha, 1f)
+        animAlpha.duration = animDuration
+        animAlpha.start()
+
+        val splashDuration = Handler()
+        splashDuration.postDelayed(object: Runnable{
+            override fun run() {
+
+                val transitionName = getString(R.string.transition_logo)
+                val intent = Intent(this@SplashActivity, SignInActivity::class.java)
+                val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                        this@SplashActivity,
+                        imgLogo,
+                        transitionName)
+
+                ActivityCompat.startActivity(
+                        this@SplashActivity, intent, options.toBundle())
+
             }
-        }
+        }, animDuration * 2) //The total duration time of the Splash is 2 seconds.
+    }
 
-        txtTest.setText("Nothing found");
+    override fun onPause() {
+        super.onPause()
+        overridePendingTransition(0, 0)
     }
 }
