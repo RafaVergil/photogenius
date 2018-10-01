@@ -6,12 +6,15 @@ import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
 import android.widget.ImageView
 import br.com.rafaelverginelli.photogenius.R
+import utils.UTILS
 
 /*
     This view works as an ImageView, but it supports Round Borders and Gradient Background.
     It's pretty simple and it makes the app look nice.
  */
 class BackgroundImageView : ImageView {
+
+    private val TAG: String = javaClass.simpleName
 
     var rivColorStart: Int = Color.WHITE
     var rivColorEnd: Int = Color.WHITE
@@ -26,7 +29,14 @@ class BackgroundImageView : ImageView {
 
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
 
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context,
+            attrs, defStyleAttr) {
+
+        if(attrs == null){
+            UTILS.DebugLog(TAG, "Null attrs")
+            return
+        }
+
         val attributes = context.theme.obtainStyledAttributes(
                 attrs,
                 R.styleable.BackgroundImageView,
@@ -35,10 +45,12 @@ class BackgroundImageView : ImageView {
         try {
 
             rivColorStart = attributes?.
-                    getColor(R.styleable.BackgroundImageView_rivColorStart, Color.WHITE) ?: Color.WHITE
+                    getColor(R.styleable.BackgroundImageView_rivColorStart, Color.WHITE) ?:
+                    Color.WHITE
 
             rivColorEnd = attributes?.
-                    getColor(R.styleable.BackgroundImageView_rivColorEnd, Color.WHITE) ?: Color.WHITE
+                    getColor(R.styleable.BackgroundImageView_rivColorEnd, Color.WHITE) ?:
+                    Color.WHITE
 
             rivRadius = attributes?.
                     getInteger(R.styleable.BackgroundImageView_rivRadius, 0) ?: 0
@@ -49,25 +61,29 @@ class BackgroundImageView : ImageView {
                             GradientDrawable.Orientation.TOP_BOTTOM.ordinal
 
             rivTopLeft = attributes == null ||
-                    attributes.getBoolean(R.styleable.BackgroundImageView_rivTopLeft, true)
+                    attributes.getBoolean(R.styleable.BackgroundImageView_rivTopLeft,
+                            true)
 
             rivTopRight = attributes == null ||
-                    attributes.getBoolean(R.styleable.BackgroundImageView_rivTopRight, true)
+                    attributes.getBoolean(R.styleable.BackgroundImageView_rivTopRight,
+                            true)
 
             rivBottomRight = attributes == null ||
-                    attributes.getBoolean(R.styleable.BackgroundImageView_rivBottomRight, true)
+                    attributes.getBoolean(R.styleable.BackgroundImageView_rivBottomRight,
+                            true)
 
             rivBottomLeft = attributes == null ||
-                    attributes.getBoolean(R.styleable.BackgroundImageView_rivBottomLeft, true)
+                    attributes.getBoolean(R.styleable.BackgroundImageView_rivBottomLeft,
+                            true)
 
         } finally {
             attributes!!.recycle()
         }
 
-        InitDrawable()
+        initDrawable()
     }
 
-    internal fun InitDrawable() {
+    private fun initDrawable() {
 
         val drawable = GradientDrawable()
         //Set gradient color

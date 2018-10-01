@@ -5,4 +5,6 @@
     <string name="transition_logo">transition_logo</string>
     <string name="sign_in">Sign In</string>
     <string name="sign_in_info">Hey! Welcome to PhotoGenius.\nPlease, Sign In!</string>
+    <string name="signing_in">Signing In</string>
+    <string name="loading">Loading</string>
 </resources>

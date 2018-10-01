@@ -16,6 +16,7 @@ import android.webkit.WebViewClient
 
 class AuthWebViewClient : WebViewClient() {
 
+    private val TAG: String = AuthWebViewClient::javaClass.name
     private var requestToken = "";
 
     private var callback: IGetCodeCallback? = null
@@ -26,20 +27,31 @@ class AuthWebViewClient : WebViewClient() {
 
     //Got the got from the oauth/authorize/ request? Send it back to our SignIn Activity.
     interface IGetCodeCallback {
-        fun OnUrlRedirect(code: String)
+        fun onUrlRedirect(code: String)
     }
 
     @TargetApi(Build.VERSION_CODES.N)
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+        if(callback == null){
+            UTILS.DebugLog(TAG, "Callback null, please use setCallback()")
+            return false
+        }
+
         val url = request.url.toString()
         view.loadUrl(url)
 
+        /*
+            Here we are verifying if the loaded URL matches the result that we want, which is
+            our Redirect URL + a code. If that's the case, grab that code and send it back
+            via Callback.
+        */
         if (url.startsWith(CONSTANTS.INSTAGRAM_API_REDIRECT_URL)) {
             val parts = url.split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             requestToken = parts[1]
-            callback!!.OnUrlRedirect(requestToken)
+            callback!!.onUrlRedirect(requestToken)
             return true
         }
+        callback!!.onUrlRedirect("")
         return false
     }
 
@@ -50,13 +62,25 @@ class AuthWebViewClient : WebViewClient() {
      */
     @Suppress("OverridingDeprecatedMember")
     override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+        if(callback == null){
+            UTILS.DebugLog(TAG, "Callback nul, please use setCallback()l")
+            return false
+        }
+
         view.loadUrl(url)
+
+        /*
+            Here we are verifying if the loaded URL matches the result that we want, which is
+            our Redirect URL + a code. If that's the case, grab that code and send it back
+            via Callback.
+        */
         if (url.startsWith(CONSTANTS.INSTAGRAM_API_REDIRECT_URL)) {
             val parts = url.split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             requestToken = parts[1]
-            callback!!.OnUrlRedirect(requestToken)
+            callback!!.onUrlRedirect(requestToken)
             return true
         }
+        callback!!.onUrlRedirect("")
         return false
     }
 }

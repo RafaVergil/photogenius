@@ -1,8 +1,10 @@
 package br.com.rafaelverginelli.photogenius
 
+import abstractions.CustomAppCompatActivity
 import android.animation.ObjectAnimator
-import android.support.v7.app.AppCompatActivity
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_sign_in.*
 import models.AuthModel
@@ -15,17 +17,21 @@ import retrofit2.Response
 import utils.AuthWebViewClient
 import utils.CONSTANTS
 import utils.RetrofitClientInstance
+import utils.UTILS
 
-class SignInActivity : AppCompatActivity() {
+class SignInActivity : CustomAppCompatActivity() {
 
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
 
-        StartAnimations()
+        webView.visibility = View.INVISIBLE
+        startAnimations()
 
         btnSignIn.setOnClickListener{
 
+            webView.visibility = View.VISIBLE
             val authWebViewClient = AuthWebViewClient()
             authWebViewClient.setCallback(authCallback)
             webView.isVerticalScrollBarEnabled = false
@@ -43,14 +49,18 @@ class SignInActivity : AppCompatActivity() {
         }
     }
 
-    fun StartAnimations(){
+    override fun onBackPressed() {
+        //Prevent user from coming back to Splash Screen.
+    }
+
+    private fun startAnimations(){
 
         llLogoText.alpha = 0f
         txtSignInInfo.alpha = 0f
         btnSignIn.alpha = 0f
 
         val fadeDuration: Long = 500
-        var delay: Long = 500
+        val delay: Long = 500
 
         val alphaLogo: ObjectAnimator = ObjectAnimator.
                 ofFloat(llLogoText, "alpha", 0f, 1f)
@@ -72,48 +82,68 @@ class SignInActivity : AppCompatActivity() {
 
     }
 
-    val authCallback: AuthWebViewClient.IGetCodeCallback = object: AuthWebViewClient.IGetCodeCallback{
-        override fun OnUrlRedirect(code: String) {
-            val iAuthRequest: IAuthRequest =
-                    RetrofitClientInstance.retrofitInstance.create(IAuthRequest::class.java)
+    private val authCallback: AuthWebViewClient.IGetCodeCallback =
+            object: AuthWebViewClient.IGetCodeCallback{
+                override fun onUrlRedirect(code: String) {
 
-            val arguments = MultipartBody.Builder()
-                    .setType(MultipartBody.FORM)
-                    .addFormDataPart(CONSTANTS.KEY_INSTAGRAM_API_GET_TOKEN_CLIENT_ID,
-                            CONSTANTS.INSTAGRAM_API_CLIENT_ID)
-                    .addFormDataPart(CONSTANTS.KEY_INSTAGRAM_API_GET_TOKEN_CLIENT_SECRET,
-                            CONSTANTS.INSTAGRAM_API_CLIENT_SECRET)
-                    .addFormDataPart(CONSTANTS.KEY_INSTAGRAM_API_GET_TOKEN_GRANT_TYPE,
-                            CONSTANTS.VALUE_INSTAGRAM_API_GRANT_TYPE)
-                    .addFormDataPart(CONSTANTS.KEY_INSTAGRAM_API_GET_TOKEN_REDIRECT_URI,
-                            CONSTANTS.INSTAGRAM_API_REDIRECT_URL)
-                    .addFormDataPart(CONSTANTS.KEY_INSTAGRAM_API_GET_TOKEN_CODE,
-                            code)
-                    .build()
-
-            val call: Call<AuthModel> = iAuthRequest.getAuthToken(arguments)
-            call.enqueue(object : Callback<AuthModel> {
-
-                override fun onResponse(call: Call<AuthModel>?, response: Response<AuthModel>?) {
-                    val authModel: AuthModel? = response!!.body()
-                    System.out.println("RETROFIT GET TOKEN Success! " + response.errorBody().toString())
-
-                    if (response.isSuccessful) {
-                        // Do your success stuff...
-                    } else {
-                        try {
-                            val jObjError = JSONObject(response.errorBody()!!.string())
-                            Toast.makeText(applicationContext, jObjError.getString("message"), Toast.LENGTH_LONG).show()
-                        } catch (e: Exception) {
-                            Toast.makeText(applicationContext, e.message, Toast.LENGTH_LONG).show()
-                        }
+                    if(code.isEmpty()){
+                        return
                     }
-                }
 
-                override fun onFailure(call: Call<AuthModel>?, t: Throwable?) {
-                    System.out.println("RETROFIT GET TOKEN Fail!")
+                    webView.visibility = View.INVISIBLE
+                    loadingDialog.showDialog(
+                            window.decorView.findViewById(android.R.id.content),
+                            getString(R.string.loading),
+                            getString(R.string.signing_in))
+
+                    val iAuthRequest: IAuthRequest =
+                            RetrofitClientInstance.retrofitInstance.create(IAuthRequest::class.java)
+
+                    val arguments = MultipartBody.Builder()
+                            .setType(MultipartBody.FORM)
+                            .addFormDataPart(CONSTANTS.KEY_INSTAGRAM_API_GET_TOKEN_CLIENT_ID,
+                                    CONSTANTS.INSTAGRAM_API_CLIENT_ID)
+                            .addFormDataPart(CONSTANTS.KEY_INSTAGRAM_API_GET_TOKEN_CLIENT_SECRET,
+                                    CONSTANTS.INSTAGRAM_API_CLIENT_SECRET)
+                            .addFormDataPart(CONSTANTS.KEY_INSTAGRAM_API_GET_TOKEN_GRANT_TYPE,
+                                    CONSTANTS.VALUE_INSTAGRAM_API_GRANT_TYPE)
+                            .addFormDataPart(CONSTANTS.KEY_INSTAGRAM_API_GET_TOKEN_REDIRECT_URI,
+                                    CONSTANTS.INSTAGRAM_API_REDIRECT_URL)
+                            .addFormDataPart(CONSTANTS.KEY_INSTAGRAM_API_GET_TOKEN_CODE,
+                                    code)
+                            .build()
+
+                    val call: Call<AuthModel> = iAuthRequest.getAuthToken(arguments)
+                    call.enqueue(object : Callback<AuthModel> {
+
+                        override fun onResponse(call: Call<AuthModel>?,
+                                                response: Response<AuthModel>?) {
+
+                            loadingDialog.dismiss()
+
+                            if (response != null && response.isSuccessful) {
+                                val authModel = response.body()
+                                Toast.makeText(this@SignInActivity,
+                                        "Welcome " + authModel!!.user.username,
+                                        Toast.LENGTH_LONG).show()
+                            } else {
+                                try {
+                                    val jObjError = JSONObject(response!!.errorBody()!!.string())
+                                    Toast.makeText(applicationContext,
+                                            jObjError.getString("message"),
+                                            Toast.LENGTH_LONG).show()
+                                } catch (e: Exception) {
+                                    Toast.makeText(applicationContext,
+                                            e.message,
+                                            Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        }
+
+                        override fun onFailure(call: Call<AuthModel>?, t: Throwable?) {
+                            UTILS.DebugLog(TAG, "onFailure")
+                        }
+                    })
                 }
-            })
-        }
-    }
+            }
 }

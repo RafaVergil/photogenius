@@ -12,7 +12,7 @@ import kotlinx.android.synthetic.main.activity_splash.*
 
 class SplashActivity : CustomAppCompatActivity() {
 
-    val animDuration: Long = 1000
+    private val animDuration: Long = 1000
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,8 +59,4 @@ class SplashActivity : CustomAppCompatActivity() {
         }, animDuration * 2) //The total duration time of the Splash is 2 seconds.
     }
 
-    override fun onPause() {
-        super.onPause()
-        overridePendingTransition(0, 0)
-    }
 }

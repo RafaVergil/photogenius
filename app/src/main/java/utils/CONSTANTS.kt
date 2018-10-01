@@ -13,7 +13,6 @@ package utils
 */
 object CONSTANTS {
 
-
     //INSTAGRAM API
     const val INSTAGRAM_API_BASE_URL = "https://api.instagram.com/"
     const val INSTAGRAM_API_GET_ACCESS_TOKEN_URL = "oauth/access_token"

@@ -14,9 +14,9 @@ object UTILS {
         responsible for allowing those prints or not. 'isDebugEnabled' is always TRUE during
         debugging, and it's necessarily FALSE when building a release apk.
      */
-    const val isDebugEnabled: Boolean = true
+    private const val isDebugEnabled: Boolean = true
 
-    fun DebugLog(tag: String, obj: Object) {
+    fun DebugLog(tag: String, obj: kotlin.Any) {
         if(isDebugEnabled) {
             System.out.println(tag)
             System.out.println(obj.toString())

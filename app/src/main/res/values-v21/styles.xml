@@ -7,4 +7,12 @@
         <!-- Add this line -->
         <item name="android:windowContentTransitions">true</item>
     </style>
+
+    <style name="SplashTheme" parent="FullScreenAppTheme">
+        <item name="android:windowExitTransition">@null</item>
+    </style>
+
+    <style name="SignInTheme" parent="FullScreenAppTheme">
+        <item name="android:windowEnterTransition">@null</item>
+    </style>
 </resources>
