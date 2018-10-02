@@ -26,7 +26,7 @@ class LoadingDialog(activity: Activity) {
     var title: String = ""
     var description: String = ""
 
-    fun showDialog(@NonNull rootView: ViewGroup, title: String, description: String){
+    fun showDialog(title: String, description: String){
         dismiss()
         if(activity == null)
             return

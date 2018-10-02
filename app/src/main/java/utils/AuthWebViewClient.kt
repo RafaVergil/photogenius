@@ -1,6 +1,7 @@
 package utils
 
 import android.annotation.TargetApi
+import android.graphics.Bitmap
 import android.os.Build
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -30,6 +31,13 @@ class AuthWebViewClient : WebViewClient() {
         fun onUrlRedirect(code: String)
     }
 
+    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+        super.onPageStarted(view, url, favicon)
+
+        UTILS.DebugLog(TAG, "Page started: $url")
+    }
+
+    //todo: treat errors properly
     @TargetApi(Build.VERSION_CODES.N)
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
         if(callback == null){

@@ -14,4 +14,5 @@ interface IAuthRequest {
     @Headers("Accept: application/json")
     @POST(CONSTANTS.INSTAGRAM_API_GET_ACCESS_TOKEN_URL)
     fun getAuthToken(@Body arguments: RequestBody): Call<AuthModel>
+
 }

@@ -15,13 +15,20 @@ object CONSTANTS {
 
     //INSTAGRAM API
     const val INSTAGRAM_API_BASE_URL = "https://api.instagram.com/"
-    const val INSTAGRAM_API_GET_ACCESS_TOKEN_URL = "oauth/access_token"
 
+    //media
+    const val INSTAGRAM_API_GET_MEDIA = "v1/media/search?"
+
+    //auth
+    const val INSTAGRAM_API_GET_ACCESS_TOKEN_URL = "oauth/access_token"
     const val INSTAGRAM_API_GET_CODE_URL = "https://www.instagram.com/oauth/authorize/?" +
             "client_id=%s" +
             "&redirect_uri=%s" +
-            "&response_type=code"
+            "&response_type=code" +
+            "&scope=basic+public_content"
+    const val INSTAGRAM_API_AUTH_SCOPES = "&scope=basic+public_content"
 
+    //app settings
     const val INSTAGRAM_API_CLIENT_ID = "61f5845972784b6d84224beb48b6a6d6"
 
     /*
@@ -42,6 +49,10 @@ object CONSTANTS {
     const val KEY_INSTAGRAM_API_GET_TOKEN_GRANT_TYPE = "grant_type"
     const val KEY_INSTAGRAM_API_GET_TOKEN_REDIRECT_URI = "redirect_uri"
     const val KEY_INSTAGRAM_API_GET_TOKEN_CODE = "code"
+
+    const val KEY_INSTAGRAM_API_MEDIA_LATITUDE = "lat"
+    const val KEY_INSTAGRAM_API_MEDIA_LONGITUDE = "lng"
+    const val KEY_INSTAGRAM_API_MEDIA_TOKEN = "access_token"
     //----------
 
     //VALUES

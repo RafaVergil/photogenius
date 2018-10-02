@@ -3,6 +3,7 @@ package br.com.rafaelverginelli.photogenius
 import abstractions.CustomAppCompatActivity
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -14,10 +15,7 @@ import requests.IAuthRequest
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import utils.AuthWebViewClient
-import utils.CONSTANTS
-import utils.RetrofitClientInstance
-import utils.UTILS
+import utils.*
 
 class SignInActivity : CustomAppCompatActivity() {
 
@@ -92,7 +90,6 @@ class SignInActivity : CustomAppCompatActivity() {
 
                     webView.visibility = View.INVISIBLE
                     loadingDialog.showDialog(
-                            window.decorView.findViewById(android.R.id.content),
                             getString(R.string.loading),
                             getString(R.string.signing_in))
 
@@ -114,36 +111,55 @@ class SignInActivity : CustomAppCompatActivity() {
                             .build()
 
                     val call: Call<AuthModel> = iAuthRequest.getAuthToken(arguments)
-                    call.enqueue(object : Callback<AuthModel> {
-
-                        override fun onResponse(call: Call<AuthModel>?,
-                                                response: Response<AuthModel>?) {
-
-                            loadingDialog.dismiss()
-
-                            if (response != null && response.isSuccessful) {
-                                val authModel = response.body()
-                                Toast.makeText(this@SignInActivity,
-                                        "Welcome " + authModel!!.user.username,
-                                        Toast.LENGTH_LONG).show()
-                            } else {
-                                try {
-                                    val jObjError = JSONObject(response!!.errorBody()!!.string())
-                                    Toast.makeText(applicationContext,
-                                            jObjError.getString("message"),
-                                            Toast.LENGTH_LONG).show()
-                                } catch (e: Exception) {
-                                    Toast.makeText(applicationContext,
-                                            e.message,
-                                            Toast.LENGTH_LONG).show()
-                                }
-                            }
-                        }
-
-                        override fun onFailure(call: Call<AuthModel>?, t: Throwable?) {
-                            UTILS.DebugLog(TAG, "onFailure")
-                        }
-                    })
+                    call.enqueue(onUserAuthResponse)
                 }
             }
+
+
+    val onUserAuthResponse = object : Callback<AuthModel> {
+
+        override fun onResponse(call: Call<AuthModel>?,
+                                response: Response<AuthModel>?) {
+
+            loadingDialog.dismiss()
+
+            if (response != null &&
+                    response.isSuccessful && response.body() != null) {
+
+                //Exchanged code for token successfully. Store user info.
+                CurrentUserInstance.currenUserInstance = response.body()
+
+                Toast.makeText(this@SignInActivity,
+                        String.format(getString(R.string.welcome_x),
+                                CurrentUserInstance.currenUserInstance!!.user.username),
+                        Toast.LENGTH_LONG).show()
+
+                startActivity(Intent(this@SignInActivity, MainActivity::class.java))
+
+            } else {
+                //todo: treat erros properly
+                try {
+                    val jObjError = JSONObject(response!!.errorBody()!!.string())
+                    Toast.makeText(applicationContext,
+                            jObjError.getString("message"),
+                            Toast.LENGTH_LONG).show()
+                } catch (e: Exception) {
+                    Toast.makeText(applicationContext,
+                            e.message,
+                            Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+
+        override fun onFailure(call: Call<AuthModel>?, t: Throwable?) {
+            UTILS.DebugLog(TAG, "onFailure")
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        //todo: clear webview
+    }
+
 }
