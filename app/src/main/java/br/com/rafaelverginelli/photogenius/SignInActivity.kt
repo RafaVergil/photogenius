@@ -4,8 +4,10 @@ import abstractions.CustomAppCompatActivity
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.webkit.ValueCallback
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_sign_in.*
 import models.AuthModel
@@ -36,6 +38,14 @@ class SignInActivity : CustomAppCompatActivity() {
             webView.isHorizontalScrollBarEnabled = false
             webView.webViewClient = authWebViewClient
             webView.settings.javaScriptEnabled = true
+
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//                webView.evaluateJavascript(
+//                        "(function() { return ('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'); })();"
+//                ) {
+//                    //hello hello
+//                }
+//            }
 
             val url: String = String.format(
                     CONSTANTS.INSTAGRAM_API_GET_CODE_URL,
@@ -131,7 +141,7 @@ class SignInActivity : CustomAppCompatActivity() {
 
                 Toast.makeText(this@SignInActivity,
                         String.format(getString(R.string.welcome_x),
-                                CurrentUserInstance.currenUserInstance!!.user.username),
+                                CurrentUserInstance.currenUserInstance!!.user.full_name),
                         Toast.LENGTH_LONG).show()
 
                 startActivity(Intent(this@SignInActivity, MainActivity::class.java))
@@ -160,6 +170,7 @@ class SignInActivity : CustomAppCompatActivity() {
         super.onResume()
 
         //todo: clear webview
+
     }
 
 }

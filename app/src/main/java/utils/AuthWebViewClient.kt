@@ -1,11 +1,14 @@
 package utils
 
 import android.annotation.TargetApi
-import android.graphics.Bitmap
+import android.os.AsyncTask
 import android.os.Build
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.net.URL
 
 /*
     What's the purpose of this class?
@@ -29,12 +32,6 @@ class AuthWebViewClient : WebViewClient() {
     //Got the got from the oauth/authorize/ request? Send it back to our SignIn Activity.
     interface IGetCodeCallback {
         fun onUrlRedirect(code: String)
-    }
-
-    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-        super.onPageStarted(view, url, favicon)
-
-        UTILS.DebugLog(TAG, "Page started: $url")
     }
 
     //todo: treat errors properly

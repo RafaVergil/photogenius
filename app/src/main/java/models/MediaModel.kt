@@ -2,10 +2,6 @@ package models
 
 // Those models are responsible for handling media data from Instagrams API
 data class MediaModel(
-        val data: ArrayList<MediaDetailModel>
-)
-
-data class MediaDetailModel(
         val id: String,
         val type: String,
         val comments: MediaFeedbackModel,
@@ -27,7 +23,7 @@ data class MediaUserModel(
 )
 
 data class ImageModel(
-        val thumbnail: ImageDetailModel,
+        val low_resolution: ImageDetailModel,
         val standard_resolution: ImageDetailModel
 )
 

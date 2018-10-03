@@ -6,23 +6,17 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <views.BackgroundImageView
+        app:rivColorStart="@color/accent"
+        app:rivColorEnd="@color/primary"
+        app:rivGradientOrientation="7"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:listitem="@layout/card_view"
-        android:orientation="vertical"
-        tools:spanCount="2"
-        app:layoutManager="android.support.v7.widget.StaggeredGridLayoutManager"
-        tools:layoutManager="GridLayoutManager">
-
-    </android.support.v7.widget.RecyclerView>
-
-    <!--todo erase later-->
-    <TextView
-        android:text="Some cool staggered grid content!"
-        android:layout_centerInParent="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:orientation="vertical"/>
 
 </RelativeLayout>

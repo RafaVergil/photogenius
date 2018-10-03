@@ -18,6 +18,7 @@ object CONSTANTS {
 
     //media
     const val INSTAGRAM_API_GET_MEDIA = "v1/media/search?"
+    const val INSTAGRAM_API_GET_SELF_MEDIA = "v1/users/self/media/recent/"
 
     //auth
     const val INSTAGRAM_API_GET_ACCESS_TOKEN_URL = "oauth/access_token"
@@ -57,6 +58,10 @@ object CONSTANTS {
 
     //VALUES
     const val VALUE_INSTAGRAM_API_GRANT_TYPE = "authorization_code"
+    //----------
+
+    //MISC
+    const val STAGGERED_GRID_COLS_SPAN = 2
     //----------
 
 }
