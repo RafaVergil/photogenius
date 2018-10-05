@@ -1,7 +1,6 @@
 package adapters
 
-import android.content.Context
-import android.support.v7.widget.CardView
+import android.app.Activity
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -13,8 +12,13 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import models.MediaModel
 
-class InstagramMediaAdapter(val data: List<MediaModel>, val context: Context) :
+class InstagramMediaAdapter(val data: List<MediaModel>, val context: Activity,
+                            private val callback: IMediaCallback) :
         RecyclerView.Adapter<MediaHolder>() {
+
+    interface IMediaCallback {
+        fun onMediaClick(index: Int)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): MediaHolder {
         return MediaHolder(LayoutInflater.from(context)
@@ -32,12 +36,10 @@ class InstagramMediaAdapter(val data: List<MediaModel>, val context: Context) :
                         .placeholder(R.mipmap.ic_launcher))
                 .into(holder.imgCard)
 
-//        val params: ViewGroup.LayoutParams = holder.imgCard.layoutParams
-//        params.height = data[position].images.thumbnail.height
-//        holder.imgCard.layoutParams = params
-
         holder.txtLikeCount.text = data[position].likes.count.toString()
         holder.txtCommentCount.text = data[position].comments.count.toString()
+        holder.imgCard.setOnClickListener { callback!!.onMediaClick(position) }
+
     }
 
 

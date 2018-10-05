@@ -1,5 +1,7 @@
 package models
 
+import java.io.Serializable
+
 // Those models are responsible for handling media data from Instagrams API
 data class MediaModel(
         val id: String,
@@ -8,7 +10,7 @@ data class MediaModel(
         val likes: MediaFeedbackModel,
         val user: MediaUserModel,
         val images: ImageModel
-)
+) : Serializable
 
 data class MediaFeedbackModel(
         val count: Int

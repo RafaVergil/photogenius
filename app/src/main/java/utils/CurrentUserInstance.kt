@@ -2,15 +2,17 @@ package utils
 
 import models.AuthModel
 
-object CurrentUserInstance {
+class CurrentUserInstance {
 
-    private var currentUser: AuthModel? = null
+    companion object{
+        private var currentUser: AuthModel? = null
 
-    var currenUserInstance: AuthModel?
-    get() {
-        return currentUser
-    }
-    set (user: AuthModel?) {
-        currentUser = user
+        var currenUserInstance: AuthModel?
+            get() {
+                return currentUser
+            }
+            set (user: AuthModel?) {
+                currentUser = user
+            }
     }
 }
