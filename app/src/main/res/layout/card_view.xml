@@ -9,6 +9,7 @@
 
     <ImageView
         android:id="@+id/imgCard"
+        android:transitionName="@string/transition_media"
         android:scaleType="fitXY"
         android:adjustViewBounds="true"
         android:layout_width="match_parent"
@@ -30,6 +31,7 @@
 
         <TextView
             android:id="@+id/txtLikeCount"
+            android:text="0"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@android:color/white"
@@ -43,13 +45,15 @@
             android:layout_marginRight="10dp"
             android:src="@drawable/ic_fav_off"
             android:layout_width="wrap_content"
-            android:layout_height="30dp" />
+            android:layout_height="20dp" />
 
         <TextView
             android:id="@+id/txtCommentCount"
+            android:text="0"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@android:color/white"
+            android:layout_marginEnd="5dp"
             android:layout_marginRight="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -57,7 +61,7 @@
         <ImageView
             android:src="@drawable/ic_comments"
             android:layout_width="wrap_content"
-            android:layout_height="30dp" />
+            android:layout_height="20dp" />
 
     </LinearLayout>
 

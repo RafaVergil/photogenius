@@ -30,10 +30,11 @@ class InstagramMediaAdapter(val data: List<MediaModel>, val context: Activity,
     }
 
     override fun onBindViewHolder(holder: MediaHolder, position: Int) {
+
         Glide.with(context)
                 .load(data[position].images.standard_resolution.url)
                 .apply(RequestOptions()
-                        .placeholder(R.mipmap.ic_launcher))
+                        .placeholder(R.drawable.ic_image))
                 .into(holder.imgCard)
 
         holder.txtLikeCount.text = data[position].likes.count.toString()

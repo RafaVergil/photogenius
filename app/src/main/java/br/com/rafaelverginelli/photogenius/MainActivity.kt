@@ -2,21 +2,27 @@ package br.com.rafaelverginelli.photogenius
 
 import abstractions.CustomAppCompatActivity
 import adapters.InstagramMediaAdapter
+import adapters.InstagramTagAdapter
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.StaggeredGridLayoutManager
 import android.text.Editable
+import android.text.InputFilter
 import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import models.EnvelopeMediaModel
+import models.EnvelopeTagModel
 import models.MediaModel
+import models.TagModel
 import org.json.JSONObject
 import requests.IMediaRequest
+import requests.ITagRequest
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -31,7 +37,12 @@ import java.util.*
 class MainActivity : CustomAppCompatActivity() {
 
     private var mediaAdapter: InstagramMediaAdapter? = null
+    private var tagAdapter: InstagramTagAdapter? = null
     private var searchRequestTimer: Timer? = null
+
+    //requests
+    private var getMediaCall: Call<EnvelopeMediaModel>? = null
+    private var searchTagsCall: Call<EnvelopeTagModel>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +58,11 @@ class MainActivity : CustomAppCompatActivity() {
         etxtSearch.setText("")
         etxtSearch.clearFocus()
 
+        // This will prevent users from typing "space", as "space" is not a valid tag.
+        etxtSearch.filters = arrayOf(InputFilter { source, _, _, _, _, _ ->
+            source.toString().filterNot { it.isWhitespace() }
+        })
+
         btnErase.setOnClickListener {
             etxtSearch.setText("")
             etxtSearch.requestFocus()
@@ -61,6 +77,8 @@ class MainActivity : CustomAppCompatActivity() {
 
             override fun onTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {
                 searchRequestTimer?.cancel()
+                getMediaCall?.cancel()
+                searchTagsCall?.cancel()
             }
 
             override fun afterTextChanged(editable: Editable) {
@@ -76,12 +94,15 @@ class MainActivity : CustomAppCompatActivity() {
 
     private fun configureNoMediaFeed(noMedia: Boolean){
         txtNoMedia.visibility = if(noMedia) View.VISIBLE else View.GONE
-        recyclerView.visibility = if(noMedia) View.VISIBLE else View.GONE
+        recyclerView.visibility = if(noMedia) View.GONE else View.VISIBLE
     }
 
     private fun loadMediaFeed(query: String){
 
-        if(query.isEmpty()) return
+        if(query.isEmpty()) {
+            configureNoMediaFeed(true)
+            return
+        }
 
         loadingDialog.showDialog(getString(R.string.loading), getString(R.string.please_wait))
 
@@ -90,47 +111,92 @@ class MainActivity : CustomAppCompatActivity() {
 
         val encodedQuery = URLEncoder.encode(query,"UTF-8")
 
-        val call: Call<EnvelopeMediaModel> = iMediaRequest.getMedia(
+        getMediaCall = iMediaRequest.getMedia(
                 encodedQuery, "", "",
                 CurrentUserInstance.currenUserInstance!!.access_token)
-        
-        call.enqueue(object : Callback<EnvelopeMediaModel> {
+
+        getMediaCall!!.enqueue(object : Callback<EnvelopeMediaModel> {
 
             override fun onResponse(call: Call<EnvelopeMediaModel>?,
                                     response: Response<EnvelopeMediaModel>?) {
 
                 loadingDialog.dismiss()
 
+                if(getMediaCall != null && getMediaCall!!.isCanceled) return
+
                 if (response != null &&
-                        response.isSuccessful && response.body() != null) {
+                        response.isSuccessful && response.body() != null &&
+                        !response.body()!!.data.isEmpty()) {
+
                     configureMediaGrid(response.body()!!.data)
 
                 } else {
-                    //todo: treat errors properly
-                    try {
-                        val jObjError = JSONObject(response!!.errorBody()!!.string())
-                        Toast.makeText(applicationContext,
-                                jObjError.getString("message"),
-                                Toast.LENGTH_LONG).show()
-                    } catch (e: Exception) {
-                        Toast.makeText(applicationContext,
-                                e.message,
-                                Toast.LENGTH_LONG).show()
-                    }
+                    searchForTags(encodedQuery)
                 }
+
             }
 
             override fun onFailure(call: Call<EnvelopeMediaModel>?, t: Throwable?) {
 
                 loadingDialog.dismiss()
 
+                if(getMediaCall != null && getMediaCall!!.isCanceled) return
+                configureNoMediaFeed(true)
                 UTILS.DebugLog(TAG, "onFailure")
-                //todo treat error
+
+            }
+        })
+    }
+
+    fun searchForTags(query: String) {
+
+        val iTagRequest: ITagRequest =
+                RetrofitClientInstance.retrofitInstance.create(ITagRequest::class.java)
+
+        searchTagsCall = iTagRequest.getTags(
+                query, CurrentUserInstance.currenUserInstance!!.access_token)
+
+        searchTagsCall!!.enqueue(object : Callback<EnvelopeTagModel> {
+
+            override fun onResponse(call: Call<EnvelopeTagModel>?,
+                                    response: Response<EnvelopeTagModel>?) {
+
+                loadingDialog.dismiss()
+
+                if(searchTagsCall != null && searchTagsCall!!.isCanceled) return
+
+                if (response != null &&
+                        response.isSuccessful && response.body() != null) {
+
+                    configureTagGrid(response.body()!!.data)
+
+                } else {
+                    configureNoMediaFeed(true)
+                }
+
+            }
+
+            override fun onFailure(call: Call<EnvelopeTagModel>?, t: Throwable?) {
+
+                loadingDialog.dismiss()
+
+                if(searchTagsCall != null && searchTagsCall!!.isCanceled) return
+                configureNoMediaFeed(true)
+                UTILS.DebugLog(TAG, "onFailure")
+
             }
         })
     }
 
     fun configureMediaGrid(data: List<MediaModel>) {
+        configureNoMediaFeed(false)
+        txtTagHeader.visibility = View.GONE
+
+        val params: RelativeLayout.LayoutParams =
+                recyclerView.layoutParams as RelativeLayout.LayoutParams
+        params.addRule(RelativeLayout.BELOW, llSearch.id)
+        recyclerView.layoutParams = params
+
         recyclerView.layoutManager =
                 StaggeredGridLayoutManager(CONSTANTS.STAGGERED_GRID_COLS_SPAN,
                         LinearLayout.VERTICAL)
@@ -141,15 +207,36 @@ class MainActivity : CustomAppCompatActivity() {
                         val intent =
                                 Intent(this@MainActivity, MediaActivity::class.java)
 
-//                        val gson = Gson()
-//                        intent.putExtra(CONSTANTS.KEY_MEDIA_BUNDLE, gson.toJson(data))
-//                        intent.putExtra(CONSTANTS.KEY_MEDIA_INDEX_BUNDLE, index)
                         MediaActivity.setMediaData(data)
                         startActivity(intent)
+
                     }
                 })
 
         recyclerView.adapter = mediaAdapter
+    }
+
+    fun configureTagGrid(data: List<TagModel>) {
+        configureNoMediaFeed(false)
+        txtTagHeader.visibility = View.VISIBLE
+
+        val params: RelativeLayout.LayoutParams =
+                recyclerView.layoutParams as RelativeLayout.LayoutParams
+        params.addRule(RelativeLayout.BELOW, txtTagHeader.id)
+        recyclerView.layoutParams = params
+
+        recyclerView.layoutManager =
+                StaggeredGridLayoutManager(CONSTANTS.STAGGERED_GRID_COLS_SPAN,
+                        LinearLayout.VERTICAL)
+
+        tagAdapter = InstagramTagAdapter(data, this,
+                object: InstagramTagAdapter.ITagCallback{
+                    override fun onTagClick(tag: TagModel) {
+                        etxtSearch.setText(tag.name)
+                    }
+                })
+
+        recyclerView.adapter = tagAdapter
     }
 
 }

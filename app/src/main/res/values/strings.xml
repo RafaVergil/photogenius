@@ -3,6 +3,7 @@
     <string name="photo">Photo</string>
     <string name="genius">Genius</string>
     <string name="transition_logo">transition_logo</string>
+    <string name="transition_media">transition_media</string>
     <string name="sign_in">Sign In</string>
     <string name="sign_in_info">Hey! Welcome to PhotoGenius.\nPlease, Sign In!</string>
     <string name="signing_in">Signing In</string>
@@ -18,4 +19,5 @@
         granted.</string>
     <string name="search_for_tags_hint">Ex: dogs</string>
     <string name="no_media">No media. Try searching\nsomething nice!</string>
+    <string name="did_you_mean">Did you mean:</string>
 </resources>

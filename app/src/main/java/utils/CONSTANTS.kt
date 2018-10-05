@@ -25,6 +25,7 @@ object CONSTANTS {
 
     const val KEY_INSTAGRAM_API_MEDIA_MAX_TAG_ID = "max_tag_id"
     const val KEY_INSTAGRAM_API_MEDIA_MIN_TAG_ID = "min_tag_id"
+    const val KEY_INSTAGRAM_API_MEDIA_TAG_QUERY = "q"
     const val KEY_INSTAGRAM_API_MEDIA_TOKEN = "access_token"
 
     const val KEY_INSTAGRAM_API_MEDIA_TAG_NAME = "tag-name"
@@ -39,6 +40,7 @@ object CONSTANTS {
 
     //MISC
     const val STAGGERED_GRID_COLS_SPAN = 2
+    const val KEY_CURRENT_POSITION = "currentPosition"
     const val MEDIA_SEARCH_SCHEDULE_TIME = 1250
     //----------
 
@@ -47,6 +49,7 @@ object CONSTANTS {
     const val INSTAGRAM_API_GET_SELF_MEDIA = "v1/users/self/media/recent/"
     const val INSTAGRAM_API_GET_MEDIA_BY_TAG
             = "v1/tags/{$KEY_INSTAGRAM_API_MEDIA_TAG_NAME}/media/recent"
+    const val INSTAGRAM_API_GET_TAGS = "v1/tags/search"
 
     //auth
     const val INSTAGRAM_API_GET_ACCESS_TOKEN_URL = "oauth/access_token"

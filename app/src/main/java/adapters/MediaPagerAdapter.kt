@@ -11,7 +11,7 @@ import java.util.*
 
 class MediaPagerAdapter(fm: FragmentManager?,
                         val data: List<MediaModel>,
-                        val callback: IMediaCallback) :
+                        private val callback: IMediaCallback) :
         FragmentStatePagerAdapter(fm) {
 
     interface IMediaCallback {
@@ -21,7 +21,7 @@ class MediaPagerAdapter(fm: FragmentManager?,
 
     override fun getItem(position: Int): Fragment {
         val mediaFrag = MediaFragment.init(data[position], callback)
-        callback?.onMediaShow(data[position])
+        callback.onMediaShow(data[position])
         return mediaFrag
     }
 

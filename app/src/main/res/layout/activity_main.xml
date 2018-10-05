@@ -51,6 +51,8 @@
 
         <EditText
             android:id="@+id/etxtSearch"
+            android:imeOptions="actionDone"
+            android:inputType="textVisiblePassword"
             android:hint="@string/search_for_tags_hint"
             android:layout_weight="1"
             android:layout_width="match_parent"
@@ -67,8 +69,19 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/txtTagHeader"
+        android:visibility="gone"
+        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_below="@+id/llSearch"
+        android:text="@string/did_you_mean"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
+        android:visibility="gone"
         android:layout_below="@+id/llSearch"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
