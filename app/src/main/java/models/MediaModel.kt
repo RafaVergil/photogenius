@@ -1,36 +1,38 @@
 package models
 
+import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
 // Those models are responsible for handling media data from Instagrams API
 data class MediaModel(
-        val id: String,
-        val type: String,
-        val comments: MediaFeedbackModel,
-        val likes: MediaFeedbackModel,
-        val user: MediaUserModel,
-        val images: ImageModel
+        @SerializedName("id") val id: String,
+        @SerializedName("type") val type: String,
+        @SerializedName("comments") val comments: MediaFeedbackModel,
+        @SerializedName("likes") val likes: MediaFeedbackModel,
+        @SerializedName("user") val user: MediaUserModel,
+        @SerializedName("images") val images: ImageModel,
+        @SerializedName("tags") val tags: ArrayList<String>
 ) : Serializable
 
 data class MediaFeedbackModel(
-        val count: Int
-)
+        @SerializedName("count") val count: kotlin.Int
+) : Serializable
 
 /*
     Do not mistake this by the UserModel data class. This one is to get info about who posted the
     media, only. The UserModel data class handles Authorization of the user.
  */
 data class MediaUserModel(
-        val userName: String
-)
+        @SerializedName("userName") val userName: String
+) : Serializable
 
 data class ImageModel(
-        val low_resolution: ImageDetailModel,
-        val standard_resolution: ImageDetailModel
-)
+        @SerializedName("low_resolution") val low_resolution: ImageDetailModel,
+        @SerializedName("standard_resolution") val standard_resolution: ImageDetailModel
+) : Serializable
 
 data class ImageDetailModel(
-        val url: String,
-        val width: Int,
-        val height: Int
-)
+        @SerializedName("url") val url: String,
+        @SerializedName("width") val width: kotlin.Int,
+        @SerializedName("height") val height: kotlin.Int
+) : Serializable

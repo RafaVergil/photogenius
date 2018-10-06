@@ -14,13 +14,13 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
-import android.widget.Toast
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
 import models.EnvelopeMediaModel
 import models.EnvelopeTagModel
 import models.MediaModel
 import models.TagModel
-import org.json.JSONObject
+import persist.MediaPersist
 import requests.IMediaRequest
 import requests.ITagRequest
 import retrofit2.Call
@@ -32,6 +32,7 @@ import utils.RetrofitClientInstance
 import utils.UTILS
 import java.net.URLEncoder
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MainActivity : CustomAppCompatActivity() {
@@ -106,10 +107,16 @@ class MainActivity : CustomAppCompatActivity() {
 
         loadingDialog.showDialog(getString(R.string.loading), getString(R.string.please_wait))
 
+        val encodedQuery = URLEncoder.encode(query,"UTF-8")
+
+        if(!UTILS.checkConnectivity(this)){
+            fetchPersistedMediaData(encodedQuery)
+            return
+        }
+
         val iMediaRequest: IMediaRequest =
                 RetrofitClientInstance.retrofitInstance.create(IMediaRequest::class.java)
 
-        val encodedQuery = URLEncoder.encode(query,"UTF-8")
 
         getMediaCall = iMediaRequest.getMedia(
                 encodedQuery, "", "",
@@ -189,6 +196,9 @@ class MainActivity : CustomAppCompatActivity() {
     }
 
     fun configureMediaGrid(data: List<MediaModel>) {
+
+        persistMediaData(data)
+
         configureNoMediaFeed(false)
         txtTagHeader.visibility = View.GONE
 
@@ -214,6 +224,54 @@ class MainActivity : CustomAppCompatActivity() {
                 })
 
         recyclerView.adapter = mediaAdapter
+    }
+
+    // This method will cache the images fetched.
+    private fun persistMediaData(data: List<MediaModel>){
+        Thread(Runnable {
+            getConn().daoMediaModel().insertMany(toMediaPersist(data))
+        }) .start()
+    }
+
+    private fun toMediaPersist(data: List<MediaModel>) : List<MediaPersist> {
+        val persistData: ArrayList<MediaPersist> = ArrayList()
+        val gson = Gson()
+        for(d in data){
+            persistData.add(MediaPersist(d.id, gson.toJson(d).toString(), d.tags.toString()))
+        }
+        return persistData
+    }
+
+    private fun toMediaModel(data: List<MediaPersist>) : List<MediaModel> {
+        val modelData: ArrayList<MediaModel> = ArrayList()
+        val gson = Gson()
+        for(d in data){
+            val any: Any? = gson.fromJson(d.data, MediaModel::class.java)
+            if(any != null && any is MediaModel) {
+                modelData.add(any)
+            }
+        }
+        return modelData
+    }
+
+    // This method will load persisted media data
+    private fun fetchPersistedMediaData(query: String){
+        Thread(Runnable {
+            val data2: List<MediaPersist> = getConn().daoMediaModel().selectAll()
+            val data: List<MediaPersist> = getConn().daoMediaModel().selectByTag(query)
+            if(!data.isEmpty()){
+                runOnUiThread{
+                    configureMediaGrid(toMediaModel(data))
+                    loadingDialog.dismiss()
+                }
+            }
+            else {
+                runOnUiThread{
+                    configureNoMediaFeed(true)
+                    loadingDialog.dismiss()
+                }
+            }
+        }) .start()
     }
 
     fun configureTagGrid(data: List<TagModel>) {

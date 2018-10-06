@@ -44,6 +44,10 @@ object CONSTANTS {
     const val MEDIA_SEARCH_SCHEDULE_TIME = 1250
     //----------
 
+    //Persistence
+    const val DATABASE_NAME = "media_db"
+    //----------
+
     //media
     const val INSTAGRAM_API_GET_MEDIA = "v1/media/search?"
     const val INSTAGRAM_API_GET_SELF_MEDIA = "v1/users/self/media/recent/"

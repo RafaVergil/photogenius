@@ -1,5 +1,9 @@
 package utils
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
+
 /*
     I have a set of common classes that I use in all my projects.
     UTILS is one of those classes. UTILS is where I keep methods that will come in handy for all
@@ -23,4 +27,9 @@ object UTILS {
         }
     }
 
+    fun checkConnectivity(context: Context) : Boolean {
+        val cm: ConnectivityManager =
+                context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return (cm.activeNetworkInfo != null)
+    }
 }

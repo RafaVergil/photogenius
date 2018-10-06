@@ -15,6 +15,10 @@ abstract class CustomAppCompatActivity : AppCompatActivity() {
     val TAG: String = CustomAppCompatActivity::class.java.simpleName
     lateinit var loadingDialog: LoadingDialog
 
+    fun getConn(): DatabaseConnection {
+        return DatabaseConnection.getInstance(applicationContext)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         /*

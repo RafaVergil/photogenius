@@ -39,7 +39,7 @@ class InstagramMediaAdapter(val data: List<MediaModel>, val context: Activity,
 
         holder.txtLikeCount.text = data[position].likes.count.toString()
         holder.txtCommentCount.text = data[position].comments.count.toString()
-        holder.imgCard.setOnClickListener { callback!!.onMediaClick(position) }
+        holder.imgCard.setOnClickListener { callback.onMediaClick(position) }
 
     }
 

@@ -23,7 +23,7 @@ data class EnvelopeMediaModel(
 )
 
 data class MetaModel(
-        val code: Integer
+        val code: kotlin.Int
 )
 
 data class PaginationModel(
