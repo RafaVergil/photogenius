@@ -15,7 +15,8 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".SplashActivity"
-            android:theme="@style/SplashTheme">
+            android:theme="@style/SplashTheme"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -24,9 +25,12 @@
         </activity>
         <activity
             android:name=".SignInActivity"
-            android:theme="@style/SignInTheme" />
-        <activity android:name=".MainActivity" />
-        <activity android:name=".MediaActivity"/>
+            android:theme="@style/SignInTheme"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".MediaActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

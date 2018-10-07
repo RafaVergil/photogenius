@@ -18,7 +18,7 @@ interface DaoMediaPersist {
     @Query("SELECT * FROM MediaPersist")
     fun selectAll(): List<MediaPersist>
 
-    @Query("SELECT * FROM MediaPersist WHERE tags xlike '%' || :query || '%'")
+    @Query("SELECT * FROM MediaPersist WHERE tags LIKE '%' || :query || '%'")
     fun selectByTag(query: String): List<MediaPersist>
 
     @Update

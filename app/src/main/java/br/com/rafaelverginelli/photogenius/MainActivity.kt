@@ -26,10 +26,7 @@ import requests.ITagRequest
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import utils.CONSTANTS
-import utils.CurrentUserInstance
-import utils.RetrofitClientInstance
-import utils.UTILS
+import utils.*
 import java.net.URLEncoder
 import java.util.*
 import kotlin.collections.ArrayList
@@ -131,14 +128,24 @@ class MainActivity : CustomAppCompatActivity() {
 
                 if(getMediaCall != null && getMediaCall!!.isCanceled) return
 
-                if (response != null &&
-                        response.isSuccessful && response.body() != null &&
-                        !response.body()!!.data.isEmpty()) {
+                if(response != null) {
+                    if(response.errorBody() == null) {
 
-                    configureMediaGrid(response.body()!!.data)
-
-                } else {
-                    searchForTags(encodedQuery)
+                        if (response.isSuccessful) {
+                            if (response.body() != null &&
+                                    !response.body()!!.data.isEmpty()) {
+                                configureMediaGrid(response.body()!!.data)
+                            }
+                        } else {
+                            searchForTags(encodedQuery)
+                        }
+                    }
+                    else {
+                        ErrorHelper.checkError(this@MainActivity, response.errorBody()!!)
+                    }
+                }
+                else {
+                    ErrorHelper.genericError(this@MainActivity)
                 }
 
             }
@@ -172,13 +179,24 @@ class MainActivity : CustomAppCompatActivity() {
 
                 if(searchTagsCall != null && searchTagsCall!!.isCanceled) return
 
-                if (response != null &&
-                        response.isSuccessful && response.body() != null) {
+                if(response != null) {
+                    if(response.errorBody() == null) {
 
-                    configureTagGrid(response.body()!!.data)
-
-                } else {
-                    configureNoMediaFeed(true)
+                        if (response.isSuccessful) {
+                            if (response.body() != null &&
+                                    !response.body()!!.data.isEmpty()) {
+                                configureTagGrid(response.body()!!.data)
+                            }
+                        } else {
+                            configureNoMediaFeed(true)
+                        }
+                    }
+                    else {
+                        ErrorHelper.checkError(this@MainActivity, response.errorBody()!!)
+                    }
+                }
+                else {
+                    ErrorHelper.genericError(this@MainActivity)
                 }
 
             }
@@ -257,7 +275,6 @@ class MainActivity : CustomAppCompatActivity() {
     // This method will load persisted media data
     private fun fetchPersistedMediaData(query: String){
         Thread(Runnable {
-            val data2: List<MediaPersist> = getConn().daoMediaModel().selectAll()
             val data: List<MediaPersist> = getConn().daoMediaModel().selectByTag(query)
             if(!data.isEmpty()){
                 runOnUiThread{

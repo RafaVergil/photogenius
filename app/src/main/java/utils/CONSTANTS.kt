@@ -32,6 +32,11 @@ object CONSTANTS {
 
     const val KEY_MEDIA_BUNDLE = "media"
     const val KEY_MEDIA_INDEX_BUNDLE = "index"
+
+    const val KEY_ENVELOPE_METADE = "meta"
+    const val KEY_ERROR_ENVELOPE_CODE = "code"
+    const val KEY_ERROR_ENVELOPE_TYPE = "error_type"
+    const val KEY_ERROR_ENVELOPE_MESSAGE = "error_message"
     //----------
 
     //VALUES
@@ -46,6 +51,9 @@ object CONSTANTS {
 
     //Persistence
     const val DATABASE_NAME = "media_db"
+    const val SHAREDPREFS_NAME = "pg_sharedprefs"
+
+    const val KEY_SHAREDPREFS_USER = "current_user"
     //----------
 
     //media

@@ -26,34 +26,37 @@ class SignInActivity : CustomAppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
 
-        webView.visibility = View.INVISIBLE
-        startAnimations()
+        if(!CurrentUserInstance.load(this@SignInActivity)){
 
-        btnSignIn.setOnClickListener{
+            webView.visibility = View.INVISIBLE
+            startAnimations()
 
-            webView.visibility = View.VISIBLE
-            val authWebViewClient = AuthWebViewClient()
-            authWebViewClient.setCallback(authCallback)
-            webView.isVerticalScrollBarEnabled = false
-            webView.isHorizontalScrollBarEnabled = false
-            webView.webViewClient = authWebViewClient
-            webView.settings.javaScriptEnabled = true
+            btnSignIn.setOnClickListener{
 
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-//                webView.evaluateJavascript(
-//                        "(function() { return ('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>'); })();"
-//                ) {
-//                    //hello hello
-//                }
-//            }
+                webView.visibility = View.VISIBLE
+                val authWebViewClient = AuthWebViewClient()
+                authWebViewClient.setCallback(authCallback)
+                webView.isVerticalScrollBarEnabled = false
+                webView.isHorizontalScrollBarEnabled = false
+                webView.webViewClient = authWebViewClient
+                webView.settings.javaScriptEnabled = true
 
-            val url: String = String.format(
-                    CONSTANTS.INSTAGRAM_API_GET_CODE_URL,
-                    CONSTANTS.INSTAGRAM_API_CLIENT_ID,
-                    CONSTANTS.INSTAGRAM_API_REDIRECT_URL)
+                val url: String = String.format(
+                        CONSTANTS.INSTAGRAM_API_GET_CODE_URL,
+                        CONSTANTS.INSTAGRAM_API_CLIENT_ID,
+                        CONSTANTS.INSTAGRAM_API_REDIRECT_URL)
 
-            webView.loadUrl(url)
+                webView.loadUrl(url)
 
+            }
+        }
+        else {
+            Toast.makeText(this@SignInActivity,
+                    String.format(getString(R.string.welcome_back_x),
+                            CurrentUserInstance.currenUserInstance!!.user.full_name),
+                    Toast.LENGTH_LONG).show()
+
+            startActivity(Intent(this@SignInActivity, MainActivity::class.java))
         }
     }
 
@@ -138,6 +141,7 @@ class SignInActivity : CustomAppCompatActivity() {
 
                 //Exchanged code for token successfully. Store user info.
                 CurrentUserInstance.currenUserInstance = response.body()
+                CurrentUserInstance.save(this@SignInActivity)
 
                 Toast.makeText(this@SignInActivity,
                         String.format(getString(R.string.welcome_x),
@@ -147,7 +151,7 @@ class SignInActivity : CustomAppCompatActivity() {
                 startActivity(Intent(this@SignInActivity, MainActivity::class.java))
 
             } else {
-                //todo: treat erros properly
+                //todo: treat errors properly
                 try {
                     val jObjError = JSONObject(response!!.errorBody()!!.string())
                     Toast.makeText(applicationContext,
