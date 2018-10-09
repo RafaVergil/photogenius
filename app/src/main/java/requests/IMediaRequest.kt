@@ -16,10 +16,4 @@ interface IMediaRequest {
             @Query(CONSTANTS.KEY_INSTAGRAM_API_MEDIA_TOKEN) access_token: String
     ): Call<EnvelopeMediaModel>
 
-    @Headers("Accept: application/json")
-    @GET(CONSTANTS.INSTAGRAM_API_GET_SELF_MEDIA)
-    fun getSelfMedia(
-            @Query(CONSTANTS.KEY_INSTAGRAM_API_MEDIA_TOKEN) access_token: String
-    ): Call<EnvelopeMediaModel>
-
 }

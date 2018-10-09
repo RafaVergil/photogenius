@@ -111,7 +111,6 @@ class MediaFragment : Fragment(){
                     })
                     .into(imgCard)
 
-            imgCard.setOnClickListener { callback?.onMediaClick() }
         }
     }
 

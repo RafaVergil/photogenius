@@ -15,7 +15,6 @@ class MediaPagerAdapter(fm: FragmentManager?,
         FragmentStatePagerAdapter(fm) {
 
     interface IMediaCallback {
-        fun onMediaClick()
         fun onMediaShow(mediaModel: MediaModel)
     }
 

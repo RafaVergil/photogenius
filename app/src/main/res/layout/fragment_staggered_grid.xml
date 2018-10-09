@@ -29,6 +29,8 @@
 
     <LinearLayout
         android:id="@+id/llSearch"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:layout_marginLeft="10dp"
@@ -114,7 +116,7 @@
         app:menu_colorNormal="@color/fab_color_normal"
         app:menu_colorPressed="@color/fab_color_pressed"
         app:menu_colorRipple="@color/fab_color_ripple"
-        app:menu_fab_label="@string/fab_label"
+        app:menu_fab_label="@string/settings"
         app:menu_fab_size="normal"
         app:menu_icon="@drawable/ic_settings"
         app:menu_labels_colorNormal="@color/fab_labels_color_normal"

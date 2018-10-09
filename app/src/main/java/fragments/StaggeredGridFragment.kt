@@ -57,6 +57,8 @@ class StaggeredGridFragment : Fragment() {
 
     private var rootView: View? = null
 
+    private var nextPageMaxId = ""
+
     private fun getConn(): DatabaseConnection {
         return DatabaseConnection.getInstance(activity!!)
     }
@@ -137,6 +139,7 @@ class StaggeredGridFragment : Fragment() {
             }
 
             override fun onTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {
+                nextPageMaxId = ""
                 searchRequestTimer?.cancel()
                 getMediaCall?.cancel()
                 searchTagsCall?.cancel()
@@ -158,14 +161,38 @@ class StaggeredGridFragment : Fragment() {
         recyclerView.visibility = if(noMedia) View.GONE else View.VISIBLE
     }
 
+    /*
+        onResume may mess with the visibility of some views. Let's update the hud to make sure
+        this won't happen
+    */
+    fun updateHud(){
+        if(recyclerView.visibility == View.VISIBLE){
+            if( (mediaAdapter != null && mediaAdapter!!.itemCount > 0) ||
+                    (tagAdapter != null && tagAdapter!!.itemCount > 0) ){
+                configureNoMediaFeed(false)
+            }
+        }
+    }
+
     private fun loadMediaFeed(query: String){
+        loadMediaFeed(query, false)
+    }
+
+    private fun loadMediaFeed(query: String, stackItems: Boolean){
 
         if(query.isEmpty()) {
             configureNoMediaFeed(true)
             return
         }
 
-        loadingDialog.showDialog(getString(R.string.loading), getString(R.string.please_wait))
+        /*
+            If it's the first load, show the Loading Dialog. Otherwise, if we are just adding more
+            items to the list, do not show any dialog, it will make the impression of
+            "infinite scroll".
+         */
+        if(!stackItems) {
+            loadingDialog.showDialog(getString(R.string.loading), getString(R.string.please_wait))
+        }
 
         val encodedQuery = URLEncoder.encode(query,"UTF-8")
 
@@ -179,7 +206,7 @@ class StaggeredGridFragment : Fragment() {
 
 
         getMediaCall = iMediaRequest.getMedia(
-                encodedQuery, "", "",
+                encodedQuery, nextPageMaxId, "",
                 CurrentUserInstance.currenUserInstance!!.access_token)
 
         getMediaCall!!.enqueue(object : Callback<EnvelopeMediaModel> {
@@ -194,8 +221,17 @@ class StaggeredGridFragment : Fragment() {
                 if(response != null) {
                     if(response.errorBody() == null ||!response.isSuccessful) {
                         if (response.body() != null && !response.body()!!.data.isEmpty()) {
+
+                            nextPageMaxId = ""
+                            //Meh... do not trust this non-null assertion.
+                            if(response.body()!!.pagination != null &&
+                                    response.body()!!.pagination.next_max_id != null) {
+                                if (!response.body()!!.pagination.next_max_id.isEmpty()) {
+                                    nextPageMaxId = response.body()!!.pagination.next_max_id
+                                }
+                            }
                             dataChangedCallback.onMediaFetched(response.body()!!.data)
-                            configureMediaGrid(response.body()!!.data)
+                            configureMediaGrid(response.body()!!.data.toMutableList(), stackItems)
                         }
                         else {
                             searchForTags(encodedQuery)
@@ -277,7 +313,7 @@ class StaggeredGridFragment : Fragment() {
         })
     }
 
-    fun configureMediaGrid(data: List<MediaModel>) {
+    fun configureMediaGrid(data: MutableList<MediaModel>, stackItems: Boolean) {
 
         etxtSearch.clearFocus()
         if(rootView != null) {
@@ -289,18 +325,32 @@ class StaggeredGridFragment : Fragment() {
         configureNoMediaFeed(false)
         txtTagHeader.visibility = View.GONE
 
-        val params: RelativeLayout.LayoutParams =
-                recyclerView.layoutParams as RelativeLayout.LayoutParams
-        params.addRule(RelativeLayout.BELOW, llSearch.id)
-        recyclerView.layoutParams = params
+        if(stackItems && mediaAdapter != null){
+            mediaAdapter!!.data.addAll(data)
+            mediaAdapter!!.notifyDataSetChanged()
+        }
+        else {
 
-        recyclerView.layoutManager =
-                StaggeredGridLayoutManager(CONSTANTS.STAGGERED_GRID_COLS_SPAN,
-                        LinearLayout.VERTICAL)
+            val params: RelativeLayout.LayoutParams =
+                    recyclerView.layoutParams as RelativeLayout.LayoutParams
+            params.addRule(RelativeLayout.BELOW, llSearch.id)
+            recyclerView.layoutParams = params
 
-        mediaAdapter = InstagramMediaAdapter(data, activity!!, gridMediaClickCallback)
+            recyclerView.layoutManager =
+                    StaggeredGridLayoutManager(CONSTANTS.STAGGERED_GRID_COLS_SPAN,
+                            LinearLayout.VERTICAL)
 
-        recyclerView.adapter = mediaAdapter
+            mediaAdapter = InstagramMediaAdapter(data, activity!!, gridMediaClickCallback)
+            mediaAdapter?.recyclerViewCallback = object : InstagramMediaAdapter.IRecyclerViewCallback{
+                override fun onBottomReached(position: Int) {
+                    if(!nextPageMaxId.isEmpty()){
+                        loadMediaFeed(etxtSearch?.text.toString(), true)
+                    }
+                }
+            }
+           recyclerView.adapter = mediaAdapter
+        }
+
     }
 
     // This method will cache the images fetched.
@@ -319,8 +369,8 @@ class StaggeredGridFragment : Fragment() {
         return persistData
     }
 
-    private fun toMediaModel(data: List<MediaPersist>) : List<MediaModel> {
-        val modelData: ArrayList<MediaModel> = ArrayList()
+    private fun toMediaModel(data: List<MediaPersist>) : MutableList<MediaModel> {
+        val modelData: MutableList<MediaModel> = ArrayList()
         val gson = Gson()
         for(d in data){
             val any: Any? = gson.fromJson(d.data, MediaModel::class.java)
@@ -337,7 +387,7 @@ class StaggeredGridFragment : Fragment() {
             val data: List<MediaPersist> = getConn().daoMediaModel().selectByTag(query)
             if(!data.isEmpty()){
                 activity!!.runOnUiThread{
-                    configureMediaGrid(toMediaModel(data))
+                    configureMediaGrid(toMediaModel(data), false)
                     loadingDialog.dismiss()
                 }
             }

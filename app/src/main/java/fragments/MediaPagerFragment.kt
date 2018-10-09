@@ -14,7 +14,6 @@ import models.MediaModel
 class MediaPagerFragment : Fragment(){
 
     private var adapter: MediaPagerAdapter? = null
-    private var showInfo = false
 
     private var index : kotlin.Int = 0
     private var data: List<MediaModel> = ArrayList()
@@ -39,12 +38,6 @@ class MediaPagerFragment : Fragment(){
 
         adapter = MediaPagerAdapter(activity!!.supportFragmentManager, data,
                 object: MediaPagerAdapter.IMediaCallback{
-
-                    override fun onMediaClick() {
-                        showInfo = !showInfo
-                        animateInfoAlpha()
-                    }
-
                     override fun onMediaShow(mediaModel: MediaModel) {
                         txtLikeCount.text = mediaModel.likes.count.toString()
                         txtCommentCount.text = mediaModel.comments.count.toString()
@@ -55,13 +48,5 @@ class MediaPagerFragment : Fragment(){
 //        viewPager.setPageTransformer(true, DepthPageTransformer())
     }
 
-    //todo not working, check later
-    private fun animateInfoAlpha(){
-        val to: Float = if(showInfo) 1f else 0f
-        val alpha = ObjectAnimator
-                .ofFloat(rlInfo, View.ALPHA, rlInfo.alpha, to)
-        alpha.duration = 250
-        alpha.start()
-    }
 
 }

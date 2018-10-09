@@ -10,9 +10,12 @@ import android.support.v7.app.AlertDialog
 import android.widget.ImageView
 import fragments.MediaPagerFragment
 import fragments.StaggeredGridFragment
+import kotlinx.android.synthetic.main.activity_main_fragment.*
+import kotlinx.android.synthetic.main.fragment_staggered_grid.*
 import models.MediaModel
 import models.TagModel
 import utils.CurrentUserInstance
+import utils.UTILS
 
 class MainFragmentActivity : CustomAppCompatActivity() {
 
@@ -40,6 +43,21 @@ class MainFragmentActivity : CustomAppCompatActivity() {
         else {
             signOut()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val currentFrag = supportFragmentManager
+                .findFragmentByTag(FRAGMENT_TAG_GRID) as StaggeredGridFragment?
+
+        // onResume puts focus in the search bar again, triggering the keyboard. Not anymore... ;)
+        if (currentFrag != null) {
+            currentFrag.etxtSearch?.clearFocus()
+            currentFrag.updateHud()
+        }
+        UTILS.hideKeyboardFrom(this, container)
+
+
     }
 
     private fun signOut(){
@@ -73,6 +91,7 @@ class MainFragmentActivity : CustomAppCompatActivity() {
     }
 
     private val onGridMediaClick = object: InstagramMediaAdapter.IMediaCallback{
+
         override fun onMediaClick(index: Int, imageView: ImageView) {
             val fragTransaction = supportFragmentManager
                             .beginTransaction()

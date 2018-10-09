@@ -16,15 +16,20 @@ import android.view.animation.AnimationUtils
 
 
 
-class InstagramMediaAdapter(val data: List<MediaModel>, val context: Activity,
+class InstagramMediaAdapter(val data: MutableList<MediaModel>, val context: Activity,
                             private val callback: IMediaCallback) :
         RecyclerView.Adapter<MediaHolder>() {
 
     private var lastPosition = -1
 
     interface IMediaCallback {
-        fun onMediaClick(index: Int, imageView: ImageView)
+        fun onMediaClick(index: kotlin.Int, imageView: ImageView)
     }
+    interface IRecyclerViewCallback {
+        fun onBottomReached(position: kotlin.Int)
+    }
+
+    var recyclerViewCallback: IRecyclerViewCallback? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): MediaHolder {
         return MediaHolder(LayoutInflater.from(context)
@@ -50,6 +55,10 @@ class InstagramMediaAdapter(val data: List<MediaModel>, val context: Activity,
         holder.imgCard.setOnClickListener { callback.onMediaClick(position, holder.imgCard) }
 
         setAnimation(holder.itemView, position)
+
+        if (position == data.size - 1){
+            recyclerViewCallback?.onBottomReached(position)
+        }
 
     }
 
