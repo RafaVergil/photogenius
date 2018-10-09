@@ -21,6 +21,7 @@
     <string name="search_for_tags_hint">Ex: dogs</string>
     <string name="no_media">No media. Try searching\nsomething nice!</string>
     <string name="did_you_mean">Did you mean:</string>
+    <string name="fab_label">Settings</string>
     <string name="generic_error_title">
         Sorry, it was not possible to complete this operation.
     </string>
@@ -29,4 +30,31 @@
     </string>
     <string name="error_invalid_token_title">Invalid Session</string>
     <string name="error_invalid_token_message">Your session is over. Please, sign in again.</string>
+    <string name="sign_out_title">Sign out</string>
+    <string name="sign_out_message">Are you sure you want to finish this session?</string>
+    <string name="help">Settings</string>
+    <string name="documentation">Documentation</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="git_hub">GitHub</string>
+    <string name="git_hub_link">https://github.com/RafaVergil/photogenius</string>
+    <string name="contact">Contact</string>
+    <string name="contact_email">rafael_verginelli@hotmail.com</string>
+    <string name="version_x" formatted="false">Version %s</string>
+    <string name="send_email_title">Send email...</string>
+    <string name="privacy_policy_link">
+        http://www.rafaelverginelli.5gbfree.com/photogenius/api/v1/privacy_policy.html
+    </string>
+    <string name="error_dialog_title">Oops! Something went wrong.</string>
+    <string name="error_dialog_message_oath">
+        You are not authorized to access the app. Please, contact the administrator\n\n
+        Can\'t change your account? Try to Clear App Data in\n
+        Settings> Applications> PhotoGenius> Storage.
+    </string>
+    <string name="app_data_button">App Data Settings</string>
+    <string name="error_dialog_message_connection">
+        Looks like there\'s something wrong with your connection. Please verify and try again!
+    </string>
+    <string name="error_dialog_message_instagram">
+        Looks like Instagram is not responding. Please try again in a few minutes.
+    </string>
 </resources>

@@ -1,7 +1,6 @@
 package utils
 
 import android.content.Context
-import android.service.autofill.UserData
 import com.google.gson.Gson
 import models.AuthModel
 
@@ -22,7 +21,7 @@ class CurrentUserInstance {
         // Persists user data
         fun save(context: Context) : Boolean {
             if(currentUser == null) {
-                UTILS.DebugLog(TAG, "Invalid user data")
+                UTILS.debugLog(TAG, "Invalid user data")
                 return false
             }
 
@@ -45,7 +44,7 @@ class CurrentUserInstance {
             val userJson = prefs.getString(CONSTANTS.KEY_SHAREDPREFS_USER, "")
 
             if(userJson == null || userJson.isEmpty()) {
-                UTILS.DebugLog(TAG, "Invalid user data")
+                UTILS.debugLog(TAG, "Invalid user data")
                 return false
             }
 
@@ -53,7 +52,7 @@ class CurrentUserInstance {
             val user: AuthModel? = gson.fromJson(userJson, AuthModel::class.java)
 
             if(user == null) {
-                UTILS.DebugLog(TAG, "Invalid user data")
+                UTILS.debugLog(TAG, "Invalid user data")
                 return false
             }
 
@@ -70,7 +69,7 @@ class CurrentUserInstance {
             editor.remove(CONSTANTS.KEY_SHAREDPREFS_USER)
             editor.apply()
 
-            UTILS.DebugLog(TAG, "User session cleared.")
+            UTILS.debugLog(TAG, "User session cleared.")
         }
     }
 }

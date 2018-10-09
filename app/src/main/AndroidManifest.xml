@@ -7,16 +7,17 @@
 
     <application
         android:allowBackup="true"
+        android:name="utils.MyApplication"
         android:icon="@mipmap/ic_launcher"
-        android:largeHeap="true"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
             android:name=".SplashActivity"
-            android:theme="@style/SplashTheme"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,12 +26,12 @@
         </activity>
         <activity
             android:name=".SignInActivity"
-            android:theme="@style/SignInTheme"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".MainActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".MediaActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/SignInTheme" />
+        <activity android:name=".HelpActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".MainFragmentActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

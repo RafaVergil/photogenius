@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import views.LoadingDialog
 
+
 /*
     One class to rule them all.
     It is actually the Activity super class that I use when I need all the other Activities
@@ -28,4 +29,5 @@ abstract class CustomAppCompatActivity : AppCompatActivity() {
          */
         loadingDialog = LoadingDialog(this@CustomAppCompatActivity)
     }
+
 }

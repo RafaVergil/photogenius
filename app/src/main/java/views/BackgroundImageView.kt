@@ -33,7 +33,7 @@ class BackgroundImageView : ImageView {
             attrs, defStyleAttr) {
 
         if(attrs == null){
-            UTILS.DebugLog(TAG, "Null attrs")
+            UTILS.debugLog(TAG, "Null attrs")
             return
         }
 

@@ -1,21 +1,29 @@
-package br.com.rafaelverginelli.photogenius
+package fragments
 
-import abstractions.CustomAppCompatActivity
+import abstractions.DatabaseConnection
 import adapters.InstagramMediaAdapter
 import adapters.InstagramTagAdapter
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.app.Fragment
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.StaggeredGridLayoutManager
 import android.text.Editable
 import android.text.InputFilter
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import br.com.rafaelverginelli.photogenius.HelpActivity
+import br.com.rafaelverginelli.photogenius.MainFragmentActivity
+import br.com.rafaelverginelli.photogenius.R
+import br.com.rafaelverginelli.photogenius.SplashActivity
 import com.google.gson.Gson
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_staggered_grid.*
 import models.EnvelopeMediaModel
 import models.EnvelopeTagModel
 import models.MediaModel
@@ -27,12 +35,13 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import utils.*
+import views.LoadingDialog
 import java.net.URLEncoder
 import java.util.*
-import kotlin.collections.ArrayList
 
+class StaggeredGridFragment : Fragment() {
 
-class MainActivity : CustomAppCompatActivity() {
+    val TAG = this::class.java.simpleName
 
     private var mediaAdapter: InstagramMediaAdapter? = null
     private var tagAdapter: InstagramTagAdapter? = null
@@ -42,13 +51,66 @@ class MainActivity : CustomAppCompatActivity() {
     private var getMediaCall: Call<EnvelopeMediaModel>? = null
     private var searchTagsCall: Call<EnvelopeTagModel>? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+    lateinit var loadingDialog: LoadingDialog
+    lateinit var gridMediaClickCallback: InstagramMediaAdapter.IMediaCallback
+    lateinit var dataChangedCallback: MainFragmentActivity.IDataChanged
+
+    private var rootView: View? = null
+
+    private fun getConn(): DatabaseConnection {
+        return DatabaseConnection.getInstance(activity!!)
+    }
+
+    companion object {
+        fun newInstance(gridMediaClickCallback: InstagramMediaAdapter.IMediaCallback,
+                        dataChangedCallback: MainFragmentActivity.IDataChanged)
+                : StaggeredGridFragment{
+
+            val frag = StaggeredGridFragment()
+            frag.gridMediaClickCallback = gridMediaClickCallback
+            frag.dataChangedCallback = dataChangedCallback
+            return frag
+        }
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        rootView = layoutInflater.inflate(R.layout.fragment_staggered_grid, null)
+        loadingDialog = LoadingDialog(activity!!)
+        return rootView
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
 
         setupSearchBar()
 
+        fabItemHelp.setOnClickListener{
+            startActivity(Intent(context, HelpActivity::class.java))
+        }
+        fabItemSignOut.setOnClickListener{
+            signOut()
+        }
+
         configureNoMediaFeed(true)
+    }
+
+    private fun signOut(){
+        val alertDialog = AlertDialog.Builder(activity!!).create()
+        alertDialog.setTitle(R.string.sign_out_title)
+        alertDialog.setMessage(activity!!
+                .getString(R.string.sign_out_message))
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, activity!!
+                .getString(android.R.string.yes)) { dialog, _ ->
+
+            CurrentUserInstance.clearSession(activity!!)
+            startActivity(Intent(activity, SplashActivity::class.java))
+
+            dialog.dismiss()
+        }
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, activity!!
+                .getString(android.R.string.no)) { dialog, _ -> dialog.dismiss()
+        }
+        alertDialog.show()
     }
 
     private fun setupSearchBar(){
@@ -57,14 +119,15 @@ class MainActivity : CustomAppCompatActivity() {
         etxtSearch.clearFocus()
 
         // This will prevent users from typing "space", as "space" is not a valid tag.
-        etxtSearch.filters = arrayOf(InputFilter { source, _, _, _, _, _ ->
+        etxtSearch.filters = arrayOf(InputFilter {
+            source, _, _, _, _, _ ->
             source.toString().filterNot { it.isWhitespace() }
         })
 
         btnErase.setOnClickListener {
             etxtSearch.setText("")
             etxtSearch.requestFocus()
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            val imm = activity!!.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(etxtSearch, InputMethodManager.SHOW_IMPLICIT)
         }
 
@@ -83,7 +146,7 @@ class MainActivity : CustomAppCompatActivity() {
                 searchRequestTimer = Timer()
                 searchRequestTimer!!.schedule(object : TimerTask() {
                     override fun run() {
-                        runOnUiThread { loadMediaFeed(etxtSearch.text.toString()) }
+                        activity!!.runOnUiThread { loadMediaFeed(etxtSearch.text.toString()) }
                     }
                 }, CONSTANTS.MEDIA_SEARCH_SCHEDULE_TIME.toLong())
             }
@@ -106,7 +169,7 @@ class MainActivity : CustomAppCompatActivity() {
 
         val encodedQuery = URLEncoder.encode(query,"UTF-8")
 
-        if(!UTILS.checkConnectivity(this)){
+        if(!UTILS.checkConnectivity(activity!!)){
             fetchPersistedMediaData(encodedQuery)
             return
         }
@@ -129,23 +192,23 @@ class MainActivity : CustomAppCompatActivity() {
                 if(getMediaCall != null && getMediaCall!!.isCanceled) return
 
                 if(response != null) {
-                    if(response.errorBody() == null) {
-
-                        if (response.isSuccessful) {
-                            if (response.body() != null &&
-                                    !response.body()!!.data.isEmpty()) {
-                                configureMediaGrid(response.body()!!.data)
-                            }
-                        } else {
+                    if(response.errorBody() == null ||!response.isSuccessful) {
+                        if (response.body() != null && !response.body()!!.data.isEmpty()) {
+                            dataChangedCallback.onMediaFetched(response.body()!!.data)
+                            configureMediaGrid(response.body()!!.data)
+                        }
+                        else {
                             searchForTags(encodedQuery)
                         }
                     }
                     else {
-                        ErrorHelper.checkError(this@MainActivity, response.errorBody()!!)
+                        if(!ErrorHelper.checkError(activity!!, response.errorBody()!!)){
+                            return
+                        }
                     }
                 }
                 else {
-                    ErrorHelper.genericError(this@MainActivity)
+                    ErrorHelper.genericError(activity!!)
                 }
 
             }
@@ -156,7 +219,7 @@ class MainActivity : CustomAppCompatActivity() {
 
                 if(getMediaCall != null && getMediaCall!!.isCanceled) return
                 configureNoMediaFeed(true)
-                UTILS.DebugLog(TAG, "onFailure")
+                UTILS.debugLog(TAG, "onFailure")
 
             }
         })
@@ -185,6 +248,7 @@ class MainActivity : CustomAppCompatActivity() {
                         if (response.isSuccessful) {
                             if (response.body() != null &&
                                     !response.body()!!.data.isEmpty()) {
+                                dataChangedCallback.onTagsFetched(response.body()!!.data)
                                 configureTagGrid(response.body()!!.data)
                             }
                         } else {
@@ -192,11 +256,11 @@ class MainActivity : CustomAppCompatActivity() {
                         }
                     }
                     else {
-                        ErrorHelper.checkError(this@MainActivity, response.errorBody()!!)
+                        ErrorHelper.checkError(activity!!, response.errorBody()!!)
                     }
                 }
                 else {
-                    ErrorHelper.genericError(this@MainActivity)
+                    ErrorHelper.genericError(activity!!)
                 }
 
             }
@@ -207,13 +271,18 @@ class MainActivity : CustomAppCompatActivity() {
 
                 if(searchTagsCall != null && searchTagsCall!!.isCanceled) return
                 configureNoMediaFeed(true)
-                UTILS.DebugLog(TAG, "onFailure")
+                UTILS.debugLog(TAG, "onFailure")
 
             }
         })
     }
 
     fun configureMediaGrid(data: List<MediaModel>) {
+
+        etxtSearch.clearFocus()
+        if(rootView != null) {
+            UTILS.hideKeyboardFrom(activity!!, rootView!!)
+        }
 
         persistMediaData(data)
 
@@ -229,17 +298,7 @@ class MainActivity : CustomAppCompatActivity() {
                 StaggeredGridLayoutManager(CONSTANTS.STAGGERED_GRID_COLS_SPAN,
                         LinearLayout.VERTICAL)
 
-        mediaAdapter = InstagramMediaAdapter(data, this,
-                object: InstagramMediaAdapter.IMediaCallback{
-                    override fun onMediaClick(index: Int) {
-                        val intent =
-                                Intent(this@MainActivity, MediaActivity::class.java)
-
-                        MediaActivity.setMediaData(data)
-                        startActivity(intent)
-
-                    }
-                })
+        mediaAdapter = InstagramMediaAdapter(data, activity!!, gridMediaClickCallback)
 
         recyclerView.adapter = mediaAdapter
     }
@@ -277,13 +336,13 @@ class MainActivity : CustomAppCompatActivity() {
         Thread(Runnable {
             val data: List<MediaPersist> = getConn().daoMediaModel().selectByTag(query)
             if(!data.isEmpty()){
-                runOnUiThread{
+                activity!!.runOnUiThread{
                     configureMediaGrid(toMediaModel(data))
                     loadingDialog.dismiss()
                 }
             }
             else {
-                runOnUiThread{
+                activity!!.runOnUiThread{
                     configureNoMediaFeed(true)
                     loadingDialog.dismiss()
                 }
@@ -292,6 +351,17 @@ class MainActivity : CustomAppCompatActivity() {
     }
 
     fun configureTagGrid(data: List<TagModel>) {
+
+        etxtSearch.clearFocus()
+        if(rootView != null) {
+            UTILS.hideKeyboardFrom(activity!!, rootView!!)
+        }
+
+        if(data.isEmpty()) {
+            configureNoMediaFeed(true)
+            return
+        }
+
         configureNoMediaFeed(false)
         txtTagHeader.visibility = View.VISIBLE
 
@@ -304,7 +374,7 @@ class MainActivity : CustomAppCompatActivity() {
                 StaggeredGridLayoutManager(CONSTANTS.STAGGERED_GRID_COLS_SPAN,
                         LinearLayout.VERTICAL)
 
-        tagAdapter = InstagramTagAdapter(data, this,
+        tagAdapter = InstagramTagAdapter(data, activity!!,
                 object: InstagramTagAdapter.ITagCallback{
                     override fun onTagClick(tag: TagModel) {
                         etxtSearch.setText(tag.name)

@@ -38,6 +38,7 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     implementation 'android.arch.lifecycle:extensions:1.1.1'
+    implementation 'com.github.clans:fab:1.6.2'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-inline:2.22.0'
@@ -64,6 +65,7 @@ dependencies {
 
     //for image zoom & pan
     implementation 'com.otaliastudios:zoomlayout:1.3.0'
+    implementation 'com.github.chrisbanes.photoview:library:1.2.4'
 
     //for data persistance
     implementation 'android.arch.persistence.room:runtime:1.1.1'

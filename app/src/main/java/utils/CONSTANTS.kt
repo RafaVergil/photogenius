@@ -45,7 +45,6 @@ object CONSTANTS {
 
     //MISC
     const val STAGGERED_GRID_COLS_SPAN = 2
-    const val KEY_CURRENT_POSITION = "currentPosition"
     const val MEDIA_SEARCH_SCHEDULE_TIME = 1250
     //----------
 
@@ -86,5 +85,20 @@ object CONSTANTS {
     const val INSTAGRAM_API_CLIENT_SECRET = "ae286571cf6046aa870eacaf617a41d0"
     const val INSTAGRAM_API_REDIRECT_URL = "http://br.com.rafaelverginelli.photogenius"
     //----------
+
+    //WebView Error treating
+    const val ERROR_TYPE_UNKOWN = 0
+    const val ERROR_TYPE_NONE = 1
+    const val ERROR_TYPE_CONNECTION = 2
+    const val ERROR_TYPE_INSTAGRAM = 3
+
+    const val ERROR_TYPE_OAUTH_ACCESS_TOKEN_EXCEPTION = "OAuthAccessTokenException"
+    const val ERROR_TYPE_OAUTH_FORBIDDEN_EXCEPTION = "OAuthForbiddenException"
+
+    const val ERROR_SOURCE_INSTAGRAM_SERVER = "5xx Server Error"
+    const val ERROR_SOURCE_CHROME = "::ERR"
+
+    //----------
+
 
 }

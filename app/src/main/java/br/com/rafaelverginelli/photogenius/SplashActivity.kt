@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.ActivityOptionsCompat
+import android.view.Window
+import android.view.WindowManager
 import kotlinx.android.synthetic.main.activity_splash.*
 
 

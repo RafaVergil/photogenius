@@ -4,14 +4,17 @@ import abstractions.CustomAppCompatActivity
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
+import android.support.v7.app.AlertDialog
 import android.view.View
-import android.webkit.ValueCallback
+import android.webkit.ConsoleMessage
+import android.webkit.WebChromeClient
+import android.webkit.WebSettings
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_sign_in.*
 import models.AuthModel
 import okhttp3.MultipartBody
+import org.json.JSONException
 import org.json.JSONObject
 import requests.IAuthRequest
 import retrofit2.Call
@@ -19,45 +22,97 @@ import retrofit2.Callback
 import retrofit2.Response
 import utils.*
 
+
 class SignInActivity : CustomAppCompatActivity() {
 
-    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
 
-        if(!CurrentUserInstance.load(this@SignInActivity)){
+        if(!CurrentUserInstance.load(this)){
 
             webView.visibility = View.INVISIBLE
             startAnimations()
 
             btnSignIn.setOnClickListener{
 
-                webView.visibility = View.VISIBLE
-                val authWebViewClient = AuthWebViewClient()
-                authWebViewClient.setCallback(authCallback)
-                webView.isVerticalScrollBarEnabled = false
-                webView.isHorizontalScrollBarEnabled = false
-                webView.webViewClient = authWebViewClient
-                webView.settings.javaScriptEnabled = true
+                if(UTILS.checkConnectivity(this)){
+                    webView.visibility = View.VISIBLE
 
-                val url: String = String.format(
-                        CONSTANTS.INSTAGRAM_API_GET_CODE_URL,
-                        CONSTANTS.INSTAGRAM_API_CLIENT_ID,
-                        CONSTANTS.INSTAGRAM_API_REDIRECT_URL)
+                    setUpAuthWebView()
 
-                webView.loadUrl(url)
+                    val url: String = String.format(
+                            CONSTANTS.INSTAGRAM_API_GET_CODE_URL,
+                            CONSTANTS.INSTAGRAM_API_CLIENT_ID,
+                            CONSTANTS.INSTAGRAM_API_REDIRECT_URL)
 
+                    webView.loadUrl(url)
+
+                }
+                else {
+                    callErrorDialog(getString(R.string.error_dialog_title),
+                            getString(R.string.error_dialog_message_connection))
+                }
             }
         }
         else {
-            Toast.makeText(this@SignInActivity,
+            Toast.makeText(this,
                     String.format(getString(R.string.welcome_back_x),
                             CurrentUserInstance.currenUserInstance!!.user.full_name),
                     Toast.LENGTH_LONG).show()
 
-            startActivity(Intent(this@SignInActivity, MainActivity::class.java))
+            startActivity(Intent(this,
+                    MainFragmentActivity::class.java))
         }
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun setUpAuthWebView(){
+
+        webView.settings.setAppCacheEnabled(false)
+        webView.settings.cacheMode = WebSettings.LOAD_NO_CACHE
+        webView.isVerticalScrollBarEnabled = false
+        webView.isHorizontalScrollBarEnabled = false
+        webView.settings.javaScriptEnabled = true
+        webView.webChromeClient = object : WebChromeClient() {
+
+            override fun onConsoleMessage(cmsg: ConsoleMessage): Boolean {
+                var errorJSON: JSONObject? = null
+                try {
+                    errorJSON = JSONObject(cmsg.message())
+                }
+                catch (e: JSONException){
+                    UTILS.debugLog(TAG, e)
+                }
+
+                if(errorJSON != JSONObject.NULL && errorJSON != null) {
+
+                    if (errorJSON.has(CONSTANTS.KEY_ERROR_ENVELOPE_TYPE) &&
+                            errorJSON.get(CONSTANTS.KEY_ERROR_ENVELOPE_TYPE) != JSONObject.NULL &&
+                            errorJSON.has(CONSTANTS.KEY_ERROR_ENVELOPE_CODE) &&
+                            errorJSON.get(CONSTANTS.KEY_ERROR_ENVELOPE_CODE) != JSONObject.NULL) {
+
+                        val errorCode = errorJSON.getInt(CONSTANTS.KEY_ERROR_ENVELOPE_CODE)
+                        val errorType = errorJSON.getString(CONSTANTS.KEY_ERROR_ENVELOPE_TYPE)
+
+                        if(ErrorHelper.checkError(this@SignInActivity, errorCode,
+                                        errorType)){
+                            if(errorType == CONSTANTS.ERROR_TYPE_OAUTH_FORBIDDEN_EXCEPTION){
+                                webView.clearCache(true)
+                                webView.loadUrl("javascript:document.open();document.close();")
+                                webView.visibility = View.INVISIBLE
+                            }
+                        }
+                        return true
+                    }
+                }
+
+                ErrorHelper.checkError(this@SignInActivity, cmsg.message())
+
+                return true
+            }
+        }
+        webView.webViewClient = AuthWebViewClient(authCallback)
     }
 
     override fun onBackPressed() {
@@ -93,8 +148,26 @@ class SignInActivity : CustomAppCompatActivity() {
 
     }
 
+    private fun clearWebView(){
+        webView.clearCache(true)
+        webView.loadUrl("javascript:document.open();document.close();")
+    }
+
+    private fun callErrorDialog(title: String, message: String){
+        clearWebView()
+        webView.visibility = View.INVISIBLE
+        val alertDialog = AlertDialog.Builder(this).create()
+        alertDialog.setTitle(title)
+        alertDialog.setMessage(message)
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, this
+                .getString(android.R.string.yes))
+        { dialog, _ -> dialog.dismiss() }
+        alertDialog.show()
+    }
+
     private val authCallback: AuthWebViewClient.IGetCodeCallback =
             object: AuthWebViewClient.IGetCodeCallback{
+
                 override fun onUrlRedirect(code: String) {
 
                     if(code.isEmpty()){
@@ -148,33 +221,28 @@ class SignInActivity : CustomAppCompatActivity() {
                                 CurrentUserInstance.currenUserInstance!!.user.full_name),
                         Toast.LENGTH_LONG).show()
 
-                startActivity(Intent(this@SignInActivity, MainActivity::class.java))
+                startActivity(Intent(this@SignInActivity,
+                        MainFragmentActivity::class.java))
 
             } else {
-                //todo: treat errors properly
-                try {
-                    val jObjError = JSONObject(response!!.errorBody()!!.string())
-                    Toast.makeText(applicationContext,
-                            jObjError.getString("message"),
-                            Toast.LENGTH_LONG).show()
-                } catch (e: Exception) {
-                    Toast.makeText(applicationContext,
-                            e.message,
-                            Toast.LENGTH_LONG).show()
-                }
+                callErrorDialog(getString(R.string.error_dialog_title),
+                        getString(R.string.error_dialog_message_connection))
             }
         }
 
         override fun onFailure(call: Call<AuthModel>?, t: Throwable?) {
-            UTILS.DebugLog(TAG, "onFailure")
+            UTILS.debugLog(TAG, "onFailure")
         }
     }
 
     override fun onResume() {
         super.onResume()
+        clearWebView()
+    }
 
-        //todo: clear webview
-
+    override fun onPause() {
+        super.onPause()
+        clearWebView()
     }
 
 }
