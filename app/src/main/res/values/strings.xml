@@ -18,7 +18,8 @@
     <string name="cancel">Cancel</string>
     <string name="error_gps_permission_not_granted">Unable to access GPS: permission not
         granted.</string>
-    <string name="search_for_tags_hint">Ex: dogs</string>
+    <string name="search_for_tags_hint">Ex: switzerland</string>
+    <string name="no_connection">No internet connection</string>
     <string name="no_media">No media. Try searching\nsomething nice!</string>
     <string name="did_you_mean">Did you mean:</string>
     <string name="generic_error_title">

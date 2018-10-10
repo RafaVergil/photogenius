@@ -1,19 +1,20 @@
 package adapters
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.support.v4.view.ViewCompat
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.TextView
 import br.com.rafaelverginelli.photogenius.R
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import models.MediaModel
-import android.view.animation.AnimationUtils
-
+import utils.CONSTANTS
 
 
 class InstagramMediaAdapter(val data: MutableList<MediaModel>, val context: Activity,
@@ -40,7 +41,22 @@ class InstagramMediaAdapter(val data: MutableList<MediaModel>, val context: Acti
         return data.size
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onBindViewHolder(holder: MediaHolder, position: Int) {
+
+        when(data[position].type.toLowerCase()){
+            CONSTANTS.KEY_INSTAGRAM_MEDIA_TOKEN_TYPE_CAROUSEL -> {
+                holder.imgOverlay.setImageResource(R.drawable.ic_images_seq)
+            }
+
+            CONSTANTS.KEY_INSTAGRAM_MEDIA_TOKEN_TYPE_VIDEO -> {
+                holder.imgOverlay.setImageResource(R.drawable.ic_play)
+            }
+
+            else -> {
+                holder.imgOverlay.setImageDrawable(null)
+            }
+        }
 
         ViewCompat.setTransitionName(holder.imgCard, data[position].id)
 
@@ -50,9 +66,11 @@ class InstagramMediaAdapter(val data: MutableList<MediaModel>, val context: Acti
                         .placeholder(R.drawable.ic_image))
                 .into(holder.imgCard)
 
+        holder.imgCard.setOnClickListener {
+            callback.onMediaClick(position, holder.imgCard) }
+
         holder.txtLikeCount.text = data[position].likes.count.toString()
         holder.txtCommentCount.text = data[position].comments.count.toString()
-        holder.imgCard.setOnClickListener { callback.onMediaClick(position, holder.imgCard) }
 
         setAnimation(holder.itemView, position)
 
@@ -78,6 +96,7 @@ class InstagramMediaAdapter(val data: MutableList<MediaModel>, val context: Acti
 class MediaHolder(view: View) : RecyclerView.ViewHolder(view) {
 
     val imgCard: ImageView = view.findViewById(R.id.imgCard) as ImageView
+    val imgOverlay: ImageView = view.findViewById(R.id.imgOverlay) as ImageView
     val txtLikeCount: TextView = view.findViewById(R.id.txtLikeCount) as TextView
     val txtCommentCount: TextView = view.findViewById(R.id.txtCommentCount) as TextView
 

@@ -37,6 +37,10 @@ object CONSTANTS {
     const val KEY_ERROR_ENVELOPE_CODE = "code"
     const val KEY_ERROR_ENVELOPE_TYPE = "error_type"
     const val KEY_ERROR_ENVELOPE_MESSAGE = "error_message"
+
+    const val KEY_INSTAGRAM_MEDIA_TOKEN_TYPE_IMAGE = "image"
+    const val KEY_INSTAGRAM_MEDIA_TOKEN_TYPE_VIDEO = "video"
+    const val KEY_INSTAGRAM_MEDIA_TOKEN_TYPE_CAROUSEL = "carousel"
     //----------
 
     //VALUES

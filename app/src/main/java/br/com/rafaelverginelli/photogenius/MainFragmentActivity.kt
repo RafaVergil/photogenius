@@ -7,7 +7,9 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v4.view.ViewCompat
 import android.support.v7.app.AlertDialog
+import android.view.View
 import android.widget.ImageView
+import android.widget.VideoView
 import fragments.MediaPagerFragment
 import fragments.StaggeredGridFragment
 import kotlinx.android.synthetic.main.activity_main_fragment.*
@@ -93,6 +95,7 @@ class MainFragmentActivity : CustomAppCompatActivity() {
     private val onGridMediaClick = object: InstagramMediaAdapter.IMediaCallback{
 
         override fun onMediaClick(index: Int, imageView: ImageView) {
+
             val fragTransaction = supportFragmentManager
                             .beginTransaction()
                             .setReorderingAllowed(true)
@@ -101,9 +104,9 @@ class MainFragmentActivity : CustomAppCompatActivity() {
                                     FRAGMENT_TAG_PAGER)
                             .addToBackStack(null)
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP) {
                 fragTransaction.addSharedElement(imageView,
-                        ViewCompat.getTransitionName(imageView) ?: "")
+                        ViewCompat.getTransitionName(imageView) ?: imageView.id.toString())
             }
 
             fragTransaction.commit()

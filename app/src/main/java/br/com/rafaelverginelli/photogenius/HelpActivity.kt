@@ -17,8 +17,6 @@ class HelpActivity : CustomAppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_help)
 
-        //todo add documentation
-
         btnContact.setOnClickListener{
             val emailIntent = Intent(Intent.ACTION_SENDTO, Uri.fromParts(
                     "mailto", getString(R.string.contact_email), null))

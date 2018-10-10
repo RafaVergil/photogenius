@@ -29,7 +29,7 @@ class InstagramTagAdapter(val data: List<TagModel>, val context: Activity,
 
     override fun onBindViewHolder(holder: TagHolder, position: Int) {
         holder.txtTag.text = data[position].name
-        holder.cardView.setOnClickListener{ callback?.onTagClick(data[position]) }
+        holder.cardView.setOnClickListener{ callback.onTagClick(data[position]) }
     }
 
 }

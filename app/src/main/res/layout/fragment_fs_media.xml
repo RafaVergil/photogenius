@@ -1,34 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@android:color/black"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!--<com.otaliastudios.zoom.ZoomLayout-->
-        <!--android:id="@+id/zoomLayout"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:scrollbars="vertical|horizontal"-->
-        <!--app:overScrollHorizontal="true"-->
-        <!--app:overScrollVertical="true"-->
-        <!--app:overPinchable="true"-->
-        <!--app:horizontalPanEnabled="true"-->
-        <!--app:verticalPanEnabled="true"-->
-        <!--app:zoomEnabled="true"-->
-        <!--app:minZoom="1"-->
-        <!--app:minZoomType="zoom"-->
-        <!--app:maxZoom="3.0"-->
-        <!--app:maxZoomType="zoom"-->
-        <!--app:hasClickableChildren="false">-->
+    <ImageView
+        android:id="@+id/imgCard"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
+        android:layout_centerInParent="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <VideoView
+        android:id="@+id/videoCard"
+        android:visibility="gone"
+        android:layout_centerInParent="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <RelativeLayout
+        android:id="@+id/rlOverlay"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <ImageView
-            android:id="@+id/imgCard"
+            android:id="@+id/imgVideoPreview"
+            android:layout_centerInParent="true"
             android:scaleType="fitCenter"
             android:adjustViewBounds="true"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:background="@android:color/black"
+            android:alpha="0.6"
+            android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-    <!--</com.otaliastudios.zoom.ZoomLayout>-->
+        <ImageView
+            android:visibility="visible"
+            android:src="@drawable/ic_play"
+            android:layout_centerInParent="true"
+            android:layout_width="30dp"
+            android:layout_height="30dp" />
+    </RelativeLayout>
 
 </RelativeLayout>

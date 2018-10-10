@@ -11,7 +11,9 @@ data class MediaModel(
         @SerializedName("likes") val likes: MediaFeedbackModel,
         @SerializedName("user") val user: MediaUserModel,
         @SerializedName("images") val images: ImageModel,
-        @SerializedName("tags") val tags: ArrayList<String>
+        @SerializedName("tags") val tags: ArrayList<String>,
+        @SerializedName("videos") val videos: VideoModel,
+        @SerializedName("carousel_media") val carousel_media: ArrayList<ImageModel>
 ) : Serializable
 
 data class MediaFeedbackModel(
@@ -35,4 +37,16 @@ data class ImageDetailModel(
         @SerializedName("url") val url: String,
         @SerializedName("width") val width: kotlin.Int,
         @SerializedName("height") val height: kotlin.Int
+) : Serializable
+
+data class VideoModel(
+        @SerializedName("standard_resolution") val standard_resolution: VideoDetailModel,
+        @SerializedName("low_bandwidth") val low_bandwidth: VideoDetailModel
+) : Serializable
+
+data class VideoDetailModel(
+        @SerializedName("width") val width: kotlin.Int,
+        @SerializedName("height") val height: kotlin.Int,
+        @SerializedName("url") val url: String,
+        @SerializedName("id") val id: String
 ) : Serializable

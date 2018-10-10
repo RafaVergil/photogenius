@@ -1,13 +1,9 @@
 package adapters
 
-import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentStatePagerAdapter
-import android.widget.Toast
 import fragments.MediaFragment
 import models.MediaModel
-import utils.UTILS
-import java.util.*
 
 class MediaPagerAdapter(fm: FragmentManager?,
                         val data: List<MediaModel>,
@@ -15,12 +11,12 @@ class MediaPagerAdapter(fm: FragmentManager?,
         FragmentStatePagerAdapter(fm) {
 
     interface IMediaCallback {
-        fun onMediaShow(mediaModel: MediaModel)
+        fun onMediaShow(mediaModel: MediaModel, position: Int)
     }
 
-    override fun getItem(position: Int): Fragment {
+    override fun getItem(position: Int): MediaFragment? {
         val mediaFrag = MediaFragment.init(data[position], callback)
-        callback.onMediaShow(data[position])
+        callback.onMediaShow(data[position], position)
         return mediaFrag
     }
 
